@@ -35,7 +35,7 @@ class ForeignAccountCreate(LoginRequiredMixin, generic.edit.CreateView):
 
 class AccountUpdate(LoginRequiredMixin, generic.edit.UpdateView):
     model = Account
-    fields = ['name', 'active', 'show_on_dashboard']
+    fields = ['name','email_address', 'bank', 'active', 'show_on_dashboard']
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -51,7 +51,7 @@ class AccountUpdate(LoginRequiredMixin, generic.edit.UpdateView):
 
     def get_form_class(self):
         if self.object.account_type != Account.PERSONAL:
-            self.fields = ['name']
+            self.fields = ['name','email_address', 'bank']
         return super(AccountUpdate, self).get_form_class()
 
 

@@ -122,6 +122,12 @@
                 <span>{% trans 'Budgets' %}</span>
               </a>
             </li>
+            <li{% if menu == "buffet" %} class="active"{% endif%}>
+              <a href="{% url 'buffet' %}">
+                <i class="fa fa-balance-scale" aria-hidden="true"></i>
+                <span>{% trans 'Buffet' %}</span>
+              </a>
+            </li>
             <li{% if menu == "reports" %} class="active"{% endif %}>
               <a href="{% url 'reports' %}">
                 <i class="fa fa-line-chart" aria-hidden="true"></i>

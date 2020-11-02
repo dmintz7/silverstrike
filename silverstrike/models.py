@@ -7,6 +7,15 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+BUFFET_TYPES = ((1, 'Need'),(2, 'Want'),(3, 'Income'), (4, 'Ignore'))
+
+def get_buffet_type_str(buffet):
+    try:
+        for i, name in BUFFET_TYPES:
+            if i == buffet:
+                return name
+    except:
+        return "None"
 
 class AccountQuerySet(models.QuerySet):
     def personal(self):
@@ -35,8 +44,17 @@ class Account(models.Model):
         (SYSTEM, _('System')),
     )
 
+    BANKS = (
+        ('ALLY', _('Ally')),
+        ('VENMO', _('Venmo')),
+        ('CHASE', _('Chase')),
+        ('AMAZON', _('Amazon')),
+    )
+	
     name = models.CharField(max_length=64)
+    email_address = models.EmailField(max_length=254, blank=True, null=True)
     account_type = models.IntegerField(choices=ACCOUNT_TYPES, default=PERSONAL)
+    bank = models.CharField(max_length=254, choices=BANKS, blank=True, null=True)
     active = models.BooleanField(default=True)
     last_modified = models.DateTimeField(auto_now=True)
     show_on_dashboard = models.BooleanField(default=False)
@@ -227,6 +245,8 @@ class Split(models.Model):
     transaction = models.ForeignKey(Transaction, models.CASCADE, related_name='splits',
                                     blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
+    buffet = models.IntegerField(choices=BUFFET_TYPES, blank=True, null=True)
+    slack_ts = models.DecimalField(max_digits=20, decimal_places=6, blank=True, null=True)
 
     objects = SplitQuerySet.as_manager()
 
@@ -354,6 +374,7 @@ class RecurringTransaction(models.Model):
     interval = models.IntegerField(choices=RECCURENCE_OPTIONS)
     transaction_type = models.IntegerField(choices=Transaction.TRANSACTION_TYPES[:3])
     category = models.ForeignKey(Category, models.SET_NULL, null=True, blank=True)
+    buffet = models.IntegerField(choices=BUFFET_TYPES, blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
 
     multiplier = models.PositiveIntegerField(default=1)
@@ -460,3 +481,26 @@ class RecurringTransaction(models.Model):
                     outstanding += t.amount
                 t.update_date()
         return outstanding
+
+class EmailQuerySet(models.QuerySet):
+    pass
+
+class Email(models.Model):
+    transaction = models.ForeignKey(Transaction, models.CASCADE)
+    message_id = models.CharField(max_length=90, blank=True, null=True, unique=True)
+    subject = models.CharField(max_length=200, blank=True, null=True)
+    email = models.CharField(max_length=254, blank=True, null=True)
+    account = models.ForeignKey(Account, models.CASCADE)
+    last_modified = models.DateTimeField(auto_now=True)
+
+    objects = EmailQuerySet.as_manager()
+
+class Account_AltnameQuerySet(models.QuerySet):
+    pass
+
+class Account_Altname(models.Model):
+    account = models.ForeignKey(Account, models.CASCADE, limit_choices_to={'account_type': '2'})
+    name = models.CharField(max_length=254, blank=True, null=True, unique=True)
+    last_modified = models.DateTimeField(auto_now=True)
+
+    objects = Account_AltnameQuerySet.as_manager()

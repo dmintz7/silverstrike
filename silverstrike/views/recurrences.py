@@ -66,6 +66,7 @@ class RecurrenceTransactionCreateView(LoginRequiredMixin, generic.edit.CreateVie
         initial['date'] = self.recurrence.date
         initial['recurrence'] = self.recurrence.pk
         initial['category'] = self.recurrence.category
+        initial['buffet'] = self.recurrence.buffet
         return initial
 
     def form_valid(self, form):

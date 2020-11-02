@@ -42,6 +42,11 @@
     <a href="{{ recurrence.category.get_absolute_url }}">{{ recurrence.category }}</a>
   </td></tr>
   {% endif %}
+  {% if recurrence.buffet %}
+  <tr><th>{% trans 'Buffet' %}</th><td>
+    <a href="{{ recurrence.category.get_absolute_url }}">{{ recurrence.get_buffet_display }}</a>
+  </td></tr>
+  {% endif %}
   {% if recurrence.notes %}
   <tr><th>{% trans 'Notes' %}</th><td>{{ recurrence.notes }}</td></tr>
   {% endif %}

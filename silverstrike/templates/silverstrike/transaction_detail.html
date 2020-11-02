@@ -59,6 +59,7 @@
   <th>{% trans 'Amount' %}</th>
   <th>{% trans 'Date' %}</th>
   <th>{% trans 'Category' %}</th>
+  <th>{% trans 'Buffet' %}</th>
   </tr>
   {% for split in transaction.splits.transfers_once %}
   <tr>
@@ -70,6 +71,7 @@
     </td>
     <td>{{ split.date }}</td>
     <td>{% if split.category %}<a href="{{ split.category.get_absolute_url }}">{{ split.category }}</a>{% endif %}</td>
+    <td>{% if split.buffet %}{{ split.get_buffet_display }}{% endif %}</td>
   </tr>
   {% endfor %}
 </table>

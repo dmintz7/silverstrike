@@ -1,0 +1,128 @@
+{% extends 'silverstrike/base.html' %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load tags %}
+
+{% block content_header %}
+<h1>Buffet</h1>
+<ol class="breadcrumb">
+  <li><a href="/">{% trans 'Home' %}</a></li>
+  <li class="active">{% trans 'Buffet' %}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div class="box">
+  <div class="box-body">
+    <div class="text-center">
+      <a href="{% url 'buffet_month_ind' previous_month.year previous_month.month %}" class="btn btn-xs btn-default">{% trans 'Previous' %}</a>
+      <span>{{ month|date:'F Y'}}</span>
+      <a href="{% url 'buffet_month_ind' next_month.year next_month.month %}" class="btn btn-xs btn-default">{% trans 'Next' %}</a>
+    </div>
+  </div>
+</div>
+{% if buffet %}
+<div class="row">
+  <div class="col-md-4 col-md-push-8">
+  <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">{% trans 'Expenses by buffet' %}</h3>
+    </div>
+    <div class="box-body">
+      <center><canvas id="expense-chart"></canvas></center>
+    </div>
+  </div>
+  </div>
+  <div class="col-md-8 col-md-pull-4">
+<div class="box">
+  <div class="box-header with-border">
+    <h3 class="box-title">{% trans 'Buffet' %}</h3>
+  </div>
+  <div class="box-body no-padding">
+    <table class="table table-striped">
+      <tr>
+        <th>{% trans 'Name' %}</th>
+	<th>{% trans 'Total' %}</th>
+        <th>{% trans 'Percent' %}</th>
+      </tr>
+      <tr><td><a href="{% url 'buffet_detail' buffet.0.id %}" >{{ buffet.0.name }}</a></td><td class="text-black">{{ buffet.0.total|currency }}</td><td class="text-black">{{ buffet.0.percent|percentage }}</td></tr>
+      <tr><td><a href="{% url 'buffet_detail' buffet.1.id %}" >{{ buffet.1.name }}</a></td><td class="text-black">{{ buffet.1.total|currency }}</td><td class="text-black">{{ buffet.1.percent|percentage }}</td></tr>
+      <tr border=1 frame=hsides rules=rows><td>{{ buffet.2.name }}</td><td class="text-black">{{ buffet.2.total|currency }}</td> <td class="text-black">{{ buffet.2.percent|percentage }}</td></tr>
+      <tr><td><a href="{% url 'buffet_detail' buffet.3.id %}" >{{ buffet.3.name }}</a></td><td class="text-black">{{ buffet.3.total|currency }}</td><td></td></tr>
+      <tr><td><a href="{% url 'buffet_detail' buffet.4.id %}" >{{ buffet.4.name }}</a></td><td class="text-black">{{ buffet.4.total|currency }}</td><td></td> </tr>
+    </table>
+  </div>
+</div>
+</div>
+</div>
+{% else %}
+<div class="box">
+  <div class="box-body">
+    {% trans 'No transactions in this month' %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if buffet %}
+<script src="{% static 'vendor/js/Chart.bundle.min.js' %}"></script>
+<script type="text/javascript">
+  $('select').change(function() {
+    $( "select option:selected" ).each(function() {
+      window.location.href = "{{ request.path }}?page=" + $(this).val();
+    });
+  });
+  var colors =
+    ['#357ca5',
+     '#008d4c',
+     '#db8b0b',
+     '#ca195a',
+     '#555299',
+     '#4285f4',
+     '#db4437',
+     '#f4b400',
+     '#0f9d58',
+     '#ab47bc',
+     '#00acc1',
+     '#ff7043',
+     '#9e9d24',
+     '#5c6bc0',
+     '#f06292',
+     '#00796b',
+     '#c2185b'
+  ];
+var ctx = document.getElementById("expense-chart").getContext('2d');
+var myChart = new Chart(ctx, {
+  type: 'pie',
+  options: {
+    responsive: false,
+    legend: {
+      position: 'none'
+    }
+  },
+  data: {
+    labels: [
+      {% for category in buffet %}
+      {% if category.id == 1 or category.id == 2 or category.id == 6 %}
+      "{{ category.name }}",
+      {% endif %}
+      {% endfor %}
+    ],
+    datasets: [{
+      backgroundColor: colors,
+      data: [
+      {% for category in buffet %}
+      {% if category.id == 1 or category.id == 2 or category.id == 6 %}
+        ({{ category.percent }}*100).toFixed(4),
+        {% endif %}
+        {% endfor %}
+      ]
+    }]
+  }}
+);
+
+</script>
+{% endif %}
+{% endblock %}

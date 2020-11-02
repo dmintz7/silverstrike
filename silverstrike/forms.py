@@ -77,12 +77,13 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = models.Transaction
         fields = ['title', 'src', 'dst',
-                  'amount', 'date', 'value_date', 'category', 'notes']
+                  'amount', 'date', 'value_date', 'category', 'notes', 'buffet']
 
     amount = forms.DecimalField(max_digits=10, decimal_places=2, min_value=0.01)
     category = forms.ModelChoiceField(
         queryset=models.Category.objects.exclude(active=False).order_by('name'), required=False)
     value_date = forms.DateField(required=False)
+    buffet = forms.ChoiceField(choices=models.BUFFET_TYPES, label="Buffet", initial=0, widget=forms.Select(), required=False)
 
     src = forms.ModelChoiceField(queryset=models.Account.objects.filter(
         account_type=models.Account.PERSONAL, active=True))
@@ -95,18 +96,19 @@ class TransactionForm(forms.ModelForm):
         dst = transaction.dst
         amount = transaction.amount
         value_date = self.cleaned_data.get('value_date') or transaction.date
+        buffet = self.cleaned_data['buffet']
         models.Split.objects.update_or_create(
             transaction=transaction, amount__lt=0,
             defaults={'amount': -amount, 'account': src,
                       'opposing_account': dst, 'date': value_date,
                       'title': transaction.title,
-                      'category': self.cleaned_data['category']})
+                      'category': self.cleaned_data['category'], 'buffet': buffet})
         models.Split.objects.update_or_create(
             transaction=transaction, amount__gt=0,
             defaults={'amount': amount, 'account': dst,
                       'opposing_account': src, 'date': value_date,
                       'title': transaction.title,
-                      'category': self.cleaned_data['category']})
+                      'category': self.cleaned_data['category'], 'buffet': buffet})
         return transaction
 
 
@@ -171,7 +173,7 @@ class DepositForm(TransactionForm):
 class RecurringTransactionForm(forms.ModelForm):
     class Meta:
         model = models.RecurringTransaction
-        fields = ['title', 'date', 'amount', 'src', 'dst', 'category',
+        fields = ['title', 'date', 'amount', 'src', 'dst', 'category', 'buffet',
                   'interval', 'multiplier', 'weekend_handling', 'usual_month_day']
 
     def clean_amount(self):

@@ -96,6 +96,15 @@
           {% endfor %}
         </div>
       </div>
+      <div class="form-group{% if form.buffet.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.buffet.id_for_label }}">{{ form.buffet.label }}</label>
+        <div class="col-sm-8">
+          {{ form.buffet|add_class:"form-control" }}
+          {% for error in form.buffet.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
       <div class="form-group{% if form.notes.errors %} has-error{% endif %}">
         <label class="col-sm-2 control-label" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
         <div class="col-sm-8">

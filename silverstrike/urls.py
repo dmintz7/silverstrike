@@ -9,13 +9,14 @@ from silverstrike.rest import views as rest_views
 from silverstrike.views import accounts as account_views
 from silverstrike.views import budgets as budget_views
 from silverstrike.views import categories as category_views
+from silverstrike.views import buffet as buffet_views
 from silverstrike.views import charts as chart_views
 from silverstrike.views import imports as import_views
 from silverstrike.views import index as general_views
 from silverstrike.views import recurrences as recurrence_views
 from silverstrike.views import reports as report_views
 from silverstrike.views import transactions as transaction_views
-
+from silverstrike.views import slack as slack_views
 
 router = routers.DefaultRouter()
 router.register(r'accounts', rest_views.AccountViewSet)
@@ -25,6 +26,7 @@ router.register(r'recurrences', rest_views.RecurringTransactionsViewset)
 
 urlpatterns = [
     path('', general_views.IndexView.as_view(), name='index'),
+    path('slack/', slack_views.slack_post, name='slack'),
     path('profile/', general_views.ProfileView.as_view(), name='profile'),
 
     path('auth/', include('allauth.urls')),
@@ -102,6 +104,14 @@ urlpatterns = [
     path('categories/<int:pk>/update/', category_views.CategoryUpdateView.as_view(),
          name='category_update'),
 
+    path('buffet/', buffet_views.BuffetByMonth.as_view(), name='buffet'),
+    path('buffet/month/', buffet_views.BuffetByMonth.as_view(), name='buffet_by_month'),
+    path('buffet/month/<int:year>/<int:month>/', buffet_views.BuffetByMonth.as_view(), name='buffet_month_ind'),
+    path('buffet/<int:pk>/', 
+         buffet_views.BuffetDetailView.as_view(), name='buffet_detail'),
+    path('buffet/<int:pk>/<int:year>/<int:month>/',
+         buffet_views.BuffetDetailView.as_view(), name='buffet_month'),
+
     path('budgets/', budget_views.BudgetIndex.as_view(), name='budgets'),
     path('budgets/<int:year>/<int:month>/',
          budget_views.BudgetIndex.as_view(), name='budget_month'),
@@ -146,3 +156,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
 ]
+
+from demo import execute

@@ -107,3 +107,4 @@ coverage
 # vim tmp files
 *.swp
 .vscode
+demo/settings.py

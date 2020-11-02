@@ -38,6 +38,8 @@ class TransactionIndex(LoginRequiredMixin, generic.ListView):
 
         if 'category' in self.request.GET:
             queryset = queryset.filter(category_id=self.request.GET['category'])
+        if 'buffet' in self.request.GET:
+            queryset = queryset.filter(buffet=self.request.GET['buffet'])
         if 'recurrence' in self.request.GET:
             queryset = queryset.filter(transaction__recurrence_id=self.request.GET['recurrence'])
         if 'account' in self.request.GET:
@@ -93,6 +95,7 @@ class TransactionUpdateView(LoginRequiredMixin, generic.edit.UpdateView):
             initial['src'] = self.transaction.opposing_account
         initial['amount'] = self.transaction.amount
         initial['category'] = self.transaction.category
+        initial['buffet'] = self.transaction.buffet
         initial['value_date'] = self.transaction.date
         return initial
 

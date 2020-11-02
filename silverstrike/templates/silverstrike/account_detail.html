@@ -91,6 +91,7 @@
     <th>{% trans 'Amount' %}</th>
     <th class="hidden-xs">{% trans 'Account' %}</th>
     <th class="hidden-xs">{% trans 'Category' %}</th>
+    <th class="hidden-xs">{% trans 'Buffet' %}</th>
   </tr>
 {% for transaction in transactions %}
 <tr>
@@ -102,6 +103,11 @@
   <td class="hidden-xs">
     {% if transaction.category %}
         <a href="{{ transaction.category.get_absolute_url }}">{{ transaction.category }}</a>
+    {% endif %}
+  </td>
+  <td class="hidden-xs">
+    {% if transaction.buffet %}
+    {{ transaction.get_buffet_display }}
     {% endif %}
   </td>
   </tr>
