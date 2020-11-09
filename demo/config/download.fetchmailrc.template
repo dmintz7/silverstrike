@@ -1,0 +1,12 @@
+defaults:
+mda "exec >>download.mbox && echo From MAILER-DAEMON Thu Mar 29 23:43:41 2007 && cat"
+poll imap.gmail.com
+proto IMAP
+user "USERNAME"
+pass "APP SPECIFIC PASSWORD"
+# Gmail will auto-remove this label as soon as the message has been downloaded,
+# so it won't get downloaded again at the next run.
+folder "Download"
+ssl
+# Also download read messages.
+fetchall
