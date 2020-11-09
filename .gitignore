@@ -110,5 +110,4 @@ coverage
 demo/settings.py
 demo/config/download.mbox
 *.fetchmailrc
-demo/settings.py
 demo/Unused/scheduler.py
