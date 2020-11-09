@@ -7,7 +7,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-BUFFET_TYPES = ((1, 'Need'),(2, 'Want'),(3, 'Income'), (4, 'Ignore'))
+BUFFET_TYPES = ((0, '---------'), (1, 'Need'),(2, 'Want'),(3, 'Income'), (4, 'Ignore'))
 
 def get_buffet_type_str(buffet):
     try:

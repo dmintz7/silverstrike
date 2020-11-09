@@ -219,7 +219,7 @@ def silverstrike_primary(json_text):
 
 	buffet = []
 	for value, name in models.BUFFET_TYPES:
-		buffet.insert(0, {"label":name, "value": value})
+		if int(value) != 0: buffet.insert(0, {"label":name, "value": value})
 
 	open_dialog = sc.api_call(
 		"dialog.open",
