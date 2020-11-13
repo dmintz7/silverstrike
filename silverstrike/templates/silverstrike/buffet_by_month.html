@@ -46,11 +46,24 @@
 	<th>{% trans 'Total' %}</th>
         <th>{% trans 'Percent' %}</th>
       </tr>
+      {% if buffet.0.id == 1 %}
       <tr><td><a href="{% url 'buffet_detail' buffet.0.id %}" >{{ buffet.0.name }}</a></td><td class="text-black">{{ buffet.0.total|currency }}</td><td class="text-black">{{ buffet.0.percent|percentage }}</td></tr>
+      {% endif %}
+      {% if buffet.1.id == 2 %}
       <tr><td><a href="{% url 'buffet_detail' buffet.1.id %}" >{{ buffet.1.name }}</a></td><td class="text-black">{{ buffet.1.total|currency }}</td><td class="text-black">{{ buffet.1.percent|percentage }}</td></tr>
+      {% endif %}
+      {% if buffet.2.id == 6 %}
       <tr border=1 frame=hsides rules=rows><td>{{ buffet.2.name }}</td><td class="text-black">{{ buffet.2.total|currency }}</td> <td class="text-black">{{ buffet.2.percent|percentage }}</td></tr>
+      {% endif %}
+      {% if buffet.3.id == 3 %}
       <tr><td><a href="{% url 'buffet_detail' buffet.3.id %}" >{{ buffet.3.name }}</a></td><td class="text-black">{{ buffet.3.total|currency }}</td><td></td></tr>
+      {% endif %}
+      {% if buffet.4.id == 5 %}
       <tr><td><a href="{% url 'buffet_detail' buffet.4.id %}" >{{ buffet.4.name }}</a></td><td class="text-black">{{ buffet.4.total|currency }}</td><td></td> </tr>
+      {% endif %}
+      {% if buffet.5.id == 7 %}
+      <tr><td><a href="{% url 'buffet_detail' buffet.5.id %}" >{{ buffet.5.name }}</a></td><td class="text-black">{{ buffet.5.total|currency }}</td><td></td> </tr>
+      {% endif %}
     </table>
   </div>
 </div>
