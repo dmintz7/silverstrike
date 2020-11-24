@@ -3,6 +3,7 @@
 {% load static %}
 {% load widget_tweaks %}
 {% load humanize %}
+{% load tags %}
 
 {% block content_header %}
 <h1>{% trans 'Budgets' %}</h1>
@@ -27,7 +28,7 @@
     <div class="small-box bg-yellow">
       <div class="inner">
         <h4>{% trans 'Allocated' %}</h4>
-        <h3>{{ allocated }}</h3>
+        <h3>{{ allocated|currency }}</h3>
       </div>
     </div>
   </div>
@@ -35,7 +36,7 @@
     <div class="small-box bg-red">
       <div class="inner">
         <h4>{% trans 'Spent' %}</h4>
-        <h3>{{ spent }}</h3>
+        <h3>{{ spent|currency }}</h3>
       </div>
     </div>
   </div>
@@ -43,7 +44,7 @@
     <div class="small-box bg-green">
       <div class="inner">
         <h4>{% trans 'Left to spend' %}</h4>
-        <h3>{{ left }}</h3>
+        <h3>{{ left|currency }}</h3>
       </div>
     </div>
   </div>
@@ -81,8 +82,8 @@
           <td>
               {{ form.amount|add_class:"form-control" }}
           </td>
-          <td>{{ form.spent.value|intcomma }}</td>
-          <td>{{ form.left.value|intcomma }}</td>
+          <td>{{ form.spent.value|currency }}</td>
+          <td>{{ form.left.value|currency }}</td>
         </tr>
         {% endfor %}
       </tbody>

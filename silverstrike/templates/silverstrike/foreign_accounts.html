@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load humanize %}
+{% load tags %}
 
 {% block content_header %}
 <h1>{% trans 'Accounts' %}</h1>
@@ -26,7 +27,7 @@
       {% for account in object_list %}
       <tr>
         <td><a href="{% url 'account_view' account.id %}">{{ account.name }}</a></td>
-        <td>{{ account.balance|intcomma }}</td>
+        <td>{{ account.balance|currency }}</td>
         <td><a href="{% url 'account_update' account.id %}">{% trans 'Edit' %}</a></td>
       </tr>
       {% endfor %}
