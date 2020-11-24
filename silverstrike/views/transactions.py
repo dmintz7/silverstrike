@@ -96,6 +96,7 @@ class TransactionUpdateView(LoginRequiredMixin, generic.edit.UpdateView):
         initial['amount'] = self.transaction.amount
         initial['category'] = self.transaction.category
         initial['buffet'] = self.transaction.buffet
+        initial['recurrence'] = self.transaction.transaction.recurrence
         initial['value_date'] = self.transaction.date
         return initial
 
