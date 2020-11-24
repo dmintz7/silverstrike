@@ -33,22 +33,87 @@
 <div class="box-body">
     <form method="post" class="form-horizontal">
       {% csrf_token %}
-      {% for field in form %}
-        <div class="form-group{% if field.errors %} has-error{% endif %}">
-          <label class="col-sm-2 control-label" for="{{ field.id_for_label }}">{{ field.label }}
-          </label>
-          <div class="col-sm-8">
-            {% if field|widget_type == 'dateinput' %}
-            {{ field|add_class:"form-control dateinput" }}
-            {% else %}
-            {{ field|add_class:"form-control" }}
-            {% endif %}
-            {% for error in field.errors %}
-            <span class="help-block">{{ error }}</span>
-            {% endfor %}
-          </div>
+      <div class="form-group{% if form.title.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+        <div class="col-sm-8">
+          {{ form.title|add_class:"form-control" }}
+          {% for error in form.title.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
         </div>
-      {% endfor %}
+      </div>
+      <div class="form-group{% if form.src.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.src.id_for_label }}">{{ form.src.label }}</label>
+        <div class="col-sm-8">
+          {{ form.src|add_class:"form-control" }}
+          {% for error in form.src.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group{% if form.dst.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.dst.id_for_label }}">{{ form.dst.label }}</label>
+        <div class="col-sm-8">
+          {{ form.dst|add_class:"form-control" }}
+          {% for error in form.dst.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group{% if form.amount.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.amount.id_for_label }}">{{ form.amount.label }}</label>
+        <div class="col-sm-8">
+          {{ form.amount|add_class:"form-control" }}
+          {% for error in form.amount.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group{% if form.date.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+        <div class="col-sm-8">
+          {{ form.date|add_class:"form-control date-input" }}
+          {% for error in form.date.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group{% if form.value_date.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.value_date.id_for_label }}">{{ form.value_date.label }}</label>
+        <div class="col-sm-8">
+          {{ form.value_date|add_class:"form-control date-input" }}
+          {% for error in form.value_date.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group{% if form.category.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+        <div class="col-sm-8">
+          {{ form.category|add_class:"form-control" }}
+          {% for error in form.category.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group{% if form.buffet.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.buffet.id_for_label }}">{{ form.buffet.label }}</label>
+        <div class="col-sm-8">
+          {{ form.buffet|add_class:"form-control" }}
+          {% for error in form.buffet.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group{% if form.notes.errors %} has-error{% endif %}">
+        <label class="col-sm-2 control-label" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+        <div class="col-sm-8">
+          {{ form.notes|add_class:"form-control" }}
+          {% for error in form.notes.errors %}
+          <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
       <button type="submit" class="btn btn-primary col-md-offset-2">{% if object %}{% trans 'Update' %}{% else %}{% trans 'Create' %}{% endif %}</button>
     </form>
 </div>
