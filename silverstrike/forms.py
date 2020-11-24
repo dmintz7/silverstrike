@@ -77,7 +77,7 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = models.Transaction
         fields = ['title', 'src', 'dst',
-                  'amount', 'date', 'value_date', 'category', 'notes', 'buffet']
+                  'amount', 'date', 'value_date', 'category', 'buffet', 'recurrence', 'notes']
 
     amount = forms.DecimalField(max_digits=10, decimal_places=2, min_value=0.01)
     category = forms.ModelChoiceField(
