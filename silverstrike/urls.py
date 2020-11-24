@@ -156,5 +156,3 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
 ]
-
-from demo import execute

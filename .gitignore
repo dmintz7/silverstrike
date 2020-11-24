@@ -107,7 +107,4 @@ coverage
 # vim tmp files
 *.swp
 .vscode
-demo/settings.py
-demo/config/download.mbox
-*.fetchmailrc
-demo/Unused/*
+demo/*
