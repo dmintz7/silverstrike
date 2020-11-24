@@ -217,8 +217,8 @@ class SplitQuerySet(models.QuerySet):
         return self.filter(category=category)
 
     def transfers_once(self):
-        return self.exclude(opposing_account__account_type=Account.PERSONAL, amount__gte=0)
-
+        return self.exclude(transaction__transaction_type=Transaction.WITHDRAW, amount__gte=0).exclude(transaction__transaction_type=Transaction.DEPOSIT, amount__lte=0).exclude(transaction__transaction_type=Transaction.TRANSFER, amount__lte=0)
+		
     def exclude_transfers(self):
         return self.exclude(account__account_type=Account.PERSONAL,
                             opposing_account__account_type=Account.PERSONAL)
@@ -311,6 +311,7 @@ class Budget(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
 
     objects = BudgetQuerySet.as_manager()
+
 
 
 class ImportFile(models.Model):
