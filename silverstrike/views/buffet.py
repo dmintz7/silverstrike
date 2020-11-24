@@ -33,7 +33,7 @@ class BuffetByMonth(LoginRequiredMixin, generic.TemplateView):
 		if len(split):
 			for c in split:
 				try:
-					buffet.append({'id': c['buffet'], 'name': get_buffet_type_str(c['buffet']), 'total': c['spent'], 'percent': 0,})
+					buffet.append({'id': c['buffet'] if c['buffet'] is not None else 0, 'name': get_buffet_type_str(c['buffet']), 'total': c['spent'], 'percent': 0,})
 					if c['buffet'] == 3: income_total = c['spent']
 				except:
 					pass
@@ -84,7 +84,7 @@ class BuffetDetailView(LoginRequiredMixin, generic.DetailView):
 	def get_context_data(self, **kwargs):
 		buffet = int(self.request.path.split('/')[2])
 		if buffet == 5: buffet = 4
-		if buffet == 7: buffet = 0
+		if buffet == 7: buffet = None
 		context = super(BuffetDetailView, self).get_context_data(**kwargs)
 		next_month = self.current_month + relativedelta(months=1)
 		two_months_ago = self.current_month - relativedelta(months=2)
@@ -132,5 +132,5 @@ class BuffetDetailView(LoginRequiredMixin, generic.DetailView):
 		context['next_month'] = self.current_month + relativedelta(months=1)
 		context['month_before'] = two_months_ago
 	  
-		context['buffet_name'] = get_buffet_type_str(int(buffet))
+		context['buffet_name'] = get_buffet_type_str(buffet)
 		return context
