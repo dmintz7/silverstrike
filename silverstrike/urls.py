@@ -8,15 +8,16 @@ from silverstrike import api
 from silverstrike.rest import views as rest_views
 from silverstrike.views import accounts as account_views
 from silverstrike.views import budgets as budget_views
-from silverstrike.views import categories as category_views
 from silverstrike.views import buffet as buffet_views
+from silverstrike.views import categories as category_views
 from silverstrike.views import charts as chart_views
 from silverstrike.views import imports as import_views
 from silverstrike.views import index as general_views
 from silverstrike.views import recurrences as recurrence_views
 from silverstrike.views import reports as report_views
 from silverstrike.views import transactions as transaction_views
-from silverstrike.views import slack as slack_views
+
+
 
 router = routers.DefaultRouter()
 router.register(r'accounts', rest_views.AccountViewSet)
@@ -26,7 +27,6 @@ router.register(r'recurrences', rest_views.RecurringTransactionsViewset)
 
 urlpatterns = [
     path('', general_views.IndexView.as_view(), name='index'),
-    path('slack/', slack_views.slack_post, name='slack'),
     path('profile/', general_views.ProfileView.as_view(), name='profile'),
 
     path('auth/', include('allauth.urls')),
@@ -140,7 +140,7 @@ urlpatterns = [
 
     path('import/', import_views.ImportView.as_view(), name='import'),
     path('import/upload/', import_views.ImportUploadView.as_view(), name='import_upload'),
-    path('import/process/<uuid:uuid>/<int:account>/<int:importer>/',
+    path('import/process/<uuid:uuid>/',
          import_views.ImportProcessView.as_view(), name='import_process'),
 
     path('import/firefly/', import_views.ImportFireflyView.as_view(), name='import_firefly'),

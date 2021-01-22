@@ -43,24 +43,12 @@ def chase_email(message, account_name):
 		except:
 			logger.info("Date Error. Using Today's Date")
 			date = datetime.today()
-
-		transaction_type = "Withdrawal"
-#	elif subject == 'Your Chase Credit Card Payment Has Posted':
-#		start = body.find('We posted')
-#		end = body.find('Now you can', start) - 1
-#		description = body[start:end].replace('\n',' ').strip()
-#		
-#		transaction_type = "Transfer"
-#		opposing_account = models.Account.objects.get_or_create(account_type=models.Account.SYSTEM, defaults={'name': 'System Account'})[0]
-#		amount = 0
-#		date = None
 	else:
 		logger.info("Doing Nothing")
 		
 	return (account_name, opposing_account, amount, description[:64], description, date, transaction_type)
 
 def venmo_email(message, account_name):
-#	body = getBody(message)
 	body = str(message)
 
 	action = venmo_comments(body, '<!-- action -->', 'span')
@@ -98,7 +86,7 @@ def ally_email(message, account_name):
 	body = getBody(message)
 	body = html2text(body)
 
-	opposing_account = models.Account.objects.get_or_create(account_type=models.Account.SYSTEM, defaults={'name': 'System Account'})[0]
+	opposing_account = models.Account.objects.get_or_create(account_type=models.Account.AccountType.SYSTEM, defaults={'name': 'System Account'})[0]
 
 	if 'deposit' in subject.lower(): transaction_type = "Deposit"
 	if 'debit' in subject.lower(): transaction_type = "Withdrawal"

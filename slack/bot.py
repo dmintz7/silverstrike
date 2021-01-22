@@ -3,7 +3,7 @@ from slackclient import SlackClient
 from datetime import datetime
 from django.conf import settings
 
-from silverstrike.mohair.utils import sendMessage
+from slack.utils import sendMessage
 
 logger = logging.getLogger('root')
 

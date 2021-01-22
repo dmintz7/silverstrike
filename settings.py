@@ -23,11 +23,16 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = '$_99bc($w4iv1h8qn=q5*g-gtb&99db+0kls8m6+avmzu8w^8x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 SITE_ID = 1
+
+SLACK_RECIPIENT_ID = os.environ['SLACK_RECIPIENT_ID']
+SLACK_CHANNEL = os.environ['SLACK_CHANNEL']
+SLACK_TOKEN = os.environ['SLACK_TOKEN']
+HOST = os.environ['HOST']
 
 # Application definition
 
@@ -92,8 +97,12 @@ WSGI_APPLICATION = 'wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': os.environ['DB_ENGINE'],
+        'NAME': os.environ['DB_NAME'],
+        'USER': os.environ['DB_USER'],
+        'PASSWORD': os.environ['DB_PASS'],
+        'HOST': os.environ['DB_HOST'],
+        'PORT': os.environ['DB_PORT'],
     }
 }
 
@@ -127,7 +136,7 @@ AUTHENTICATION_BACKENDS = (
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'EST'
 
 USE_I18N = True
 
@@ -166,18 +175,26 @@ REST_FRAMEWORK = {
     )
 }
 LOGGING = {
-    'version': 1,
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+                'verbose': {
+                        'format': '%(asctime)s - %(levelname)10s - %(module)15s:%(funcName)30s:%(lineno)5s - %(message)s'
+                },
+        },
+        'handlers': {
+                'console': {
+                        'level': 'INFO',
+                        'class': 'logging.StreamHandler',
+                        'formatter': 'verbose'
+                },
+        },
+        'loggers': {
+                '': {
+                        'handlers': ['console'],
+                        'level': 'INFO',
+                        'propagate': True,
+                },
         }
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-        }
-    }
 }
 

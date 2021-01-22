@@ -1,12 +1,12 @@
 defaults:
-mda "exec >>download.mbox && echo From MAILER-DAEMON Thu Mar 29 23:43:41 2007 && cat"
-poll imap.gmail.com
+mda "exec >>/app/emails/download.mbox && echo From MAILER-DAEMON Thu Mar 29 23:43:41 2007 && cat"
+poll default_url
 proto IMAP
-user "USERNAME"
-pass "APP SPECIFIC PASSWORD"
+user "default_user"
+pass "default_pass"
 # Gmail will auto-remove this label as soon as the message has been downloaded,
 # so it won't get downloaded again at the next run.
-folder "Download"
+folder "default_label"
 ssl
 # Also download read messages.
 fetchall

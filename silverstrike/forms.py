@@ -8,7 +8,7 @@ from silverstrike import importers, models
 class ImportUploadForm(forms.ModelForm):
     class Meta:
         model = models.ImportFile
-        fields = ['file']
+        fields = ['file', 'account', 'importer']
     account = forms.ModelChoiceField(queryset=models.Account.objects.personal().active())
     importer = forms.ChoiceField(choices=enumerate(importers.IMPORTER_NAMES))
 
@@ -20,7 +20,8 @@ class ForeignAccountForm(forms.ModelForm):
 
     def clean_name(self):
         name = self.cleaned_data['name']
-        if models.Account.objects.filter(name=name, account_type=models.Account.FOREIGN).exists():
+        if models.Account.objects.filter(name=name,
+                                         account_type=models.Account.AccountType.FOREIGN).exists():
             raise ValidationError(_('An account with this name already exists'))
         return name
 
@@ -28,13 +29,14 @@ class ForeignAccountForm(forms.ModelForm):
 class AccountCreateForm(forms.ModelForm):
     class Meta:
         model = models.Account
-        fields = ['name', 'initial_balance', 'active', 'show_on_dashboard']
+        fields = ['name', 'email_address', 'bank', 'initial_balance', 'active', 'show_on_dashboard']
 
     initial_balance = forms.DecimalField(max_digits=10, decimal_places=2, initial=0)
 
     def clean_name(self):
         name = self.cleaned_data['name']
-        if models.Account.objects.filter(name=name, account_type=models.Account.PERSONAL).exists():
+        if models.Account.objects.filter(name=name,
+                                         account_type=models.Account.AccountType.PERSONAL).exists():
             raise ValidationError(_('An account with this name already exists'))
         return name
 
@@ -77,7 +79,7 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = models.Transaction
         fields = ['title', 'src', 'dst',
-                  'amount', 'date', 'value_date', 'category', 'buffet', 'recurrence', 'notes']
+                  'amount', 'date', 'value_date', 'category', 'buffet', 'recurrence', 'buffet', 'notes']
 
     amount = forms.DecimalField(max_digits=10, decimal_places=2, min_value=0.01)
     category = forms.ModelChoiceField(
@@ -85,10 +87,11 @@ class TransactionForm(forms.ModelForm):
     value_date = forms.DateField(required=False)
     buffet = forms.ChoiceField(choices=models.BUFFET_TYPES, label="Buffet", initial=0, widget=forms.Select(), required=False)
 
+
     src = forms.ModelChoiceField(queryset=models.Account.objects.filter(
-        account_type=models.Account.PERSONAL, active=True))
+        account_type=models.Account.AccountType.PERSONAL, active=True))
     dst = forms.ModelChoiceField(queryset=models.Account.objects.filter(
-        account_type=models.Account.PERSONAL, active=True))
+        account_type=models.Account.AccountType.PERSONAL, active=True))
 
     def save(self, commit=True):
         transaction = super().save(commit)
@@ -148,7 +151,7 @@ class WithdrawForm(TransactionForm):
     def clean_dst(self):
         account, _ = models.Account.objects.get_or_create(
             name=self.cleaned_data['dst'],
-            account_type=models.Account.FOREIGN)
+            account_type=models.Account.AccountType.FOREIGN)
         return account
 
     def clean(self):
@@ -161,8 +164,9 @@ class DepositForm(TransactionForm):
                           widget=forms.TextInput(attrs={'autocomplete': 'off'}))
 
     def clean_src(self):
-        account, _ = models.Account.objects.get_or_create(name=self.cleaned_data['src'],
-                                                          account_type=models.Account.FOREIGN)
+        account, _ = models.Account.objects.get_or_create(
+            name=self.cleaned_data['src'],
+            account_type=models.Account.AccountType.FOREIGN)
         return account
 
     def clean(self):
@@ -173,7 +177,7 @@ class DepositForm(TransactionForm):
 class RecurringTransactionForm(forms.ModelForm):
     class Meta:
         model = models.RecurringTransaction
-        fields = ['title', 'date', 'amount', 'src', 'dst', 'category', 'buffet',
+        fields = ['title', 'date', 'amount', 'src', 'dst', 'category', 'buffet',	
                   'interval', 'multiplier', 'weekend_handling', 'usual_month_day']
 
     def clean_amount(self):
@@ -186,12 +190,12 @@ class RecurringTransactionForm(forms.ModelForm):
         super(RecurringTransactionForm, self).clean()
         src = self.cleaned_data['src']
         dst = self.cleaned_data['dst']
-        if src.account_type == models.Account.PERSONAL:
-            if dst.account_type == models.Account.PERSONAL:
+        if src.account_type == models.Account.AccountType.PERSONAL:
+            if dst.account_type == models.Account.AccountType.PERSONAL:
                 self.transaction_type = models.Transaction.TRANSFER
             else:
                 self.transaction_type = models.Transaction.WITHDRAW
-        elif dst.account_type == models.Account.PERSONAL:
+        elif dst.account_type == models.Account.AccountType.PERSONAL:
             self.transaction_type = models.Transaction.DEPOSIT
         else:
             raise forms.ValidationError(
@@ -219,7 +223,7 @@ class ReconcilationForm(forms.ModelForm):
     def save(self, commit=True):
         transaction = super().save(False)
         transaction.transaction_type = models.Transaction.SYSTEM
-        transaction.src = models.Account.objects.get(account_type=models.Account.SYSTEM)
+        transaction.src = models.Account.objects.get(account_type=models.Account.AccountType.SYSTEM)
         transaction.dst = models.Account.objects.get(pk=self.account)
 
         balance = self.cleaned_data['balance']
@@ -245,11 +249,11 @@ class ReconcilationForm(forms.ModelForm):
 class SplitForm(forms.ModelForm):
     class Meta:
         model = models.Split
-        fields = ['title', 'account', 'opposing_account', 'date', 'amount', 'category']
+        fields = ['title', 'account', 'opposing_account', 'date', 'amount', 'category', 'buffet']
     account = forms.ModelChoiceField(queryset=models.Account.objects.exclude(
-        account_type=models.Account.SYSTEM))
+        account_type=models.Account.AccountType.SYSTEM))
     opposing_account = forms.ModelChoiceField(queryset=models.Account.objects.exclude(
-        account_type=models.Account.SYSTEM))
+        account_type=models.Account.AccountType.SYSTEM))
 
 
 TransactionFormSet = forms.models.inlineformset_factory(

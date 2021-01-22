@@ -8,13 +8,12 @@ from silverstrike import models
 from django.conf import settings
 from django.db import connection
 
+from emails.utils import match_transaction_recurrence
+
+
 logger = logging.getLogger(__name__)
 
-def remove_unused_accounts():
-	try:
-		connection.cursor().execute("DELETE silverstrike_account FROM silverstrike_account left join (select A.id AS id from (select opposing_account_id as id from silverstrike_split union all select account_id from silverstrike_split) A group by A.id ) B on (B.id = silverstrike_account.id) where isnull(B.id) and account_type = '2';")
-	except:
-		pass
+
 def create_attachment_transaction(split):
 	if isinstance(split, str): split = models.Split.objects.get(id=split)
 	match_transaction_recurrence(split)
@@ -58,33 +57,9 @@ def sendMessage(response, attachments=None, update=False, ts=False):
 	except Exception as e:
 		logger.error("Error Sending Message - Exception: %s" % (e))
 		return "error"
-
-def add_altname(name, account):
-	try:
-		account_current = models.Account.objects.filter(name=name)
-		if len(list(account_current)) > 0:
-			num_trans = len(list(models.Split.objects.filter(account=account_current[0])))
-		else:
-			num_trans = 0
-
-		if name != account.name and num_trans == 1:
-			models.Account_Altname.objects.create(name=name, account_id=account.id)
-	except Exception as e:
-		logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e).__name__, e)
-
-def check_altname(opposing_account):
-	try:
-		opposing_account = models.Account_Altname.objects.get(name=opposing_account).account
-	except ObjectDoesNotExist:
-		try:
-			opposing_account = models.Account.objects.get(name=opposing_account)
-		except ObjectDoesNotExist:
-			pass
-
-	return opposing_account
 		
 def create_transaction(date, title, amount, account, opposing_account, category, notes, transaction_type, transaction=None):
-		account = models.Account.objects.get(name=account, account_type=models.Account.PERSONAL)
+		account = models.Account.objects.get(name=account, account_type=models.Account.AccountType.PERSONAL)
 		amount = float(amount)
 		date = datetime.strptime(date, '%Y%m%d')
 
@@ -92,9 +67,9 @@ def create_transaction(date, title, amount, account, opposing_account, category,
 		if transaction_type == 'Transfer':
 			transaction_type = 'Transfer'
 			t_type = models.Transaction.TRANSFER
-			if isinstance(opposing_account, str): opposing_account = models.Account.objects.get(name=opposing_account, account_type=models.Account.PERSONAL)[0]
+			if isinstance(opposing_account, str): opposing_account = models.Account.objects.get(name=opposing_account, account_type=models.Account.AccountType.PERSONAL)[0]
 		else:
-			if isinstance(opposing_account, str): opposing_account = models.Account.objects.get_or_create(name=opposing_account, account_type=models.Account.FOREIGN)[0]
+			if isinstance(opposing_account, str): opposing_account = models.Account.objects.get_or_create(name=opposing_account, account_type=models.Account.AccountType.FOREIGN)[0]
 			if transaction_type == 'Withdrawal':
 				t_type = models.Transaction.WITHDRAW
 			elif transaction_type == 'Deposit':
@@ -121,8 +96,8 @@ def manual_entry(account_type):
 	date = datetime.now().strftime("%Y%m%d")
 	title = "Manual Entry at %s" % datetime.now().strftime("%Y-%m-%d %I:%M:%S %p")
 	amount = .01
-	account = models.Account.objects.get(name="Wallet", account_type=models.Account.PERSONAL)
-	opposing_account = models.Account.objects.get_or_create(account_type=models.Account.SYSTEM, defaults={'name': 'System Account'})[0]
+	account = models.Account.objects.get(name="Wallet", account_type=models.Account.AccountType.PERSONAL)
+	opposing_account = models.Account.objects.get_or_create(account_type=models.Account.AccountType.SYSTEM, defaults={'name': 'System Account'})[0]
 
 	split = create_transaction(date, title, amount, account, opposing_account, None, "", account_type)
 	data = create_attachment_transaction(split)
@@ -137,24 +112,3 @@ def adjust_transaction_amount(transaction_type, amount):
 		amount = abs(amount)
 
 	return amount
-
-def match_transaction_recurrence(split):
-	try:
-		if split.transaction.transaction_type == models.Transaction.DEPOSIT:
-			account = split.opposing_account
-			opposing_account = split.account
-		else:
-			account = split.account
-			opposing_account = split.opposing_account
-
-		recurrence = models.RecurringTransaction.objects.get(transaction_type=split.transaction.transaction_type, src=account, dst=opposing_account, amount=abs(split.amount))
-		if datetime.today().date() > recurrence.date:
-			split.transaction.recurrence = recurrence
-			recurrence.update_date(save=True)
-			split.transaction.save()
-			logger.info("Recurrence: %s updated" % recurrence)
-	except ObjectDoesNotExist:
-		pass
-	except Exception as e:
-		logger.error("Error Matching Transaction and Recurrence - %s" % e)
-		

@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  silverstrike:
+    build: .
+    container_name: silverstrike
+    environment:
+      - SLACK_RECIPIENT_ID=
+      - SLACK_CHANNEL=
+      - SLACK_TOKEN=
+      - HOST=https://silverstrike.example.com
+      - EMAIL_URL=
+      - EMAIL_USER=
+      - EMAIL_PASS=
+      - EMAIL_LABEL=Silverstrike
+      - DB_ENGINE=django.db.backends.mysql #Use django.db.backends.postgresql_psycopg2 for PostGreSQL Database
+      - DB_NAME=
+      - DB_USER=
+      - DB_PASS=
+      - DB_HOST=
+      - DB_PORT=
+    ports:
+      - "8000:80"

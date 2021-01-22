@@ -7,7 +7,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-BUFFET_TYPES = ((0, 'None'), (1, 'Need'),(2, 'Want'),(3, 'Income'), (4, 'Ignore'))
+BUFFET_TYPES = ((0, '---------'), (1, 'Need'),(2, 'Want'),(3, 'Income'), (4, 'Ignore'))
 
 def get_buffet_type_str(buffet):
     try:
@@ -19,10 +19,10 @@ def get_buffet_type_str(buffet):
 
 class AccountQuerySet(models.QuerySet):
     def personal(self):
-        return self.filter(account_type=Account.PERSONAL)
+        return self.filter(account_type=Account.AccountType.PERSONAL)
 
     def foreign(self):
-        return self.filter(account_type=Account.FOREIGN)
+        return self.filter(account_type=Account.AccountType.FOREIGN)
 
     def active(self):
         return self.filter(active=True)
@@ -35,14 +35,10 @@ class AccountQuerySet(models.QuerySet):
 
 
 class Account(models.Model):
-    PERSONAL = 1
-    FOREIGN = 2
-    SYSTEM = 3
-    ACCOUNT_TYPES = (
-        (PERSONAL, _('Personal')),
-        (FOREIGN, _('Foreign')),
-        (SYSTEM, _('System')),
-    )
+    class AccountType(models.IntegerChoices):
+        PERSONAL = 1, _('Personal')
+        FOREIGN = 2, _('Foreign')
+        SYSTEM = 3, _('System')
 
     BANKS = (
         ('ALLY', _('Ally')),
@@ -50,10 +46,10 @@ class Account(models.Model):
         ('CHASE', _('Chase')),
         ('AMAZON', _('Amazon')),
     )
-	
+
     name = models.CharField(max_length=64)
     email_address = models.EmailField(max_length=254, blank=True, null=True)
-    account_type = models.IntegerField(choices=ACCOUNT_TYPES, default=PERSONAL)
+    account_type = models.IntegerField(choices=AccountType.choices, default=AccountType.PERSONAL)
     bank = models.CharField(max_length=254, choices=BANKS, blank=True, null=True)
     active = models.BooleanField(default=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -73,11 +69,11 @@ class Account(models.Model):
 
     @property
     def account_type_str(self):
-        return Account.ACCOUNT_TYPES[self.account_type - 1][1]
+        return Account.AccountType.labels[self.account_type - 1]
 
     @property
     def is_personal(self):
-        return self.account_type == Account.PERSONAL
+        return self.account_type == Account.AccountType.PERSONAL
 
     @property
     def transaction_num(self):
@@ -120,7 +116,7 @@ class Account(models.Model):
         return data_points
 
     def set_initial_balance(self, amount):
-        system = Account.objects.get(account_type=Account.SYSTEM)
+        system = Account.objects.get(account_type=Account.AccountType.SYSTEM)
         transaction = Transaction.objects.create(title=_('Initial Balance'),
                                                  transaction_type=Transaction.SYSTEM,
                                                  src=system,
@@ -202,13 +198,13 @@ class Transaction(models.Model):
 
 class SplitQuerySet(models.QuerySet):
     def personal(self):
-        return self.filter(account__account_type=Account.PERSONAL)
+        return self.filter(account__account_type=Account.AccountType.PERSONAL)
 
     def income(self):
-        return self.filter(opposing_account__account_type=Account.FOREIGN, amount__gt=0)
+        return self.filter(opposing_account__account_type=Account.AccountType.FOREIGN, amount__gt=0)
 
     def expense(self):
-        return self.filter(opposing_account__account_type=Account.FOREIGN, amount__lt=0)
+        return self.filter(opposing_account__account_type=Account.AccountType.FOREIGN, amount__lt=0)
 
     def date_range(self, dstart, dend):
         return self.filter(date__gte=dstart, date__lte=dend)
@@ -217,11 +213,13 @@ class SplitQuerySet(models.QuerySet):
         return self.filter(category=category)
 
     def transfers_once(self):
-        return self.exclude(transaction__transaction_type=Transaction.WITHDRAW, amount__gte=0).exclude(transaction__transaction_type=Transaction.DEPOSIT, amount__lte=0).exclude(transaction__transaction_type=Transaction.TRANSFER, amount__lte=0)
-		
+        return self.exclude(
+            opposing_account__account_type=Account.AccountType.PERSONAL,
+            amount__gte=0)
+
     def exclude_transfers(self):
-        return self.exclude(account__account_type=Account.PERSONAL,
-                            opposing_account__account_type=Account.PERSONAL)
+        return self.exclude(account__account_type=Account.AccountType.PERSONAL,
+                            opposing_account__account_type=Account.AccountType.PERSONAL)
 
     def upcoming(self):
         return self.filter(date__gt=date.today())
@@ -247,7 +245,6 @@ class Split(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     buffet = models.IntegerField(choices=BUFFET_TYPES, blank=True, null=True)
     slack_ts = models.DecimalField(max_digits=20, decimal_places=6, blank=True, null=True)
-
     objects = SplitQuerySet.as_manager()
 
     class Meta:
@@ -291,7 +288,7 @@ class Category(models.Model):
     @property
     def money_spent(self):
         return abs(Split.objects.filter(
-                category=self, account__account_type=Account.PERSONAL,
+                category=self, account__account_type=Account.AccountType.PERSONAL,
                 transaction__transaction_type=Transaction.WITHDRAW).aggregate(
             models.Sum('amount'))['amount__sum'] or 0)
 
@@ -313,10 +310,12 @@ class Budget(models.Model):
     objects = BudgetQuerySet.as_manager()
 
 
-
 class ImportFile(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     file = models.FileField(upload_to='imports')
+    created_at = models.DateTimeField(auto_now_add=True)
+    account = models.ForeignKey(Account, models.SET_NULL, null=True)
+    importer = models.PositiveIntegerField(null=True)
 
 
 class RecurringTransactionManager(models.Manager):
@@ -500,6 +499,13 @@ class Account_AltnameQuerySet(models.QuerySet):
     pass
 
 class Account_Altname(models.Model):
+    account = models.ForeignKey(Account, models.CASCADE, limit_choices_to={'account_type': '2'})
+    name = models.CharField(max_length=254, blank=True, null=True, unique=True)
+    last_modified = models.DateTimeField(auto_now=True)
+
+    objects = Account_AltnameQuerySet.as_manager()
+
+class Account_FAKE(models.Model):
     account = models.ForeignKey(Account, models.CASCADE, limit_choices_to={'account_type': '2'})
     name = models.CharField(max_length=254, blank=True, null=True, unique=True)
     last_modified = models.DateTimeField(auto_now=True)

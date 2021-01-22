@@ -1,8 +1,0 @@
-[run]
-source = silverstrike 
-omit =
-  silverstrike/migrations/*.py
-  silverstrike/tests/*.py
-
-[html]
-directory = coverage

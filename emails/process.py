@@ -6,37 +6,23 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from silverstrike import models
-from silverstrike.mohair import parser
-from silverstrike.mohair import utils
-# from silverstrike.mohair.utils import remove_unused_accounts
-from silverstrike.mohair.utils import match_transaction_recurrence
+from slack import parser
+from slack import utils
+from emails.utils import remove_unused_accounts
+from emails.utils import match_transaction_recurrence
 
 logger = logging.getLogger(__name__)
 
-def queue():
-	while True:
-		try:
-			logger.info("Creating Queue")
-			schedule.every(2).minutes.do(check_new)
-			# schedule.every(1).hour.do(remove_unused_accounts)
-			logger.info("Starting Schedule")
-			schedule.run_all()
-			while True:
-				schedule.run_pending()
-				time.sleep(1)
-		except Exception as e:
-			logger.error("Error Queue - %s" % e)
-			pass
-		
 def process_email(message, account):
 	if account.bank == 'VENMO':
 		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.venmo_email(message, account.name)
 	elif account.bank == 'CHASE':
 		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.chase_email(message, account.name)
 	elif account.bank == 'ALLY':
+		print("A")
 		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.ally_email(message, account.name)
 	elif account.bank == 'AMAZON':
-                (account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.amazon_email(message, account.name)
+		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.amazon_email(message, account.name)
 	else:
 		logger.info("doing nothing")
 		return 0
@@ -63,8 +49,8 @@ def process_email(message, account):
 	
 def check_new():
 	logger.info("Checking for Emails")
-	mbox_file = settings.CONFIG_FOLDER + "/download.mbox"
-	os.system("fetchmail -s -f " + settings.CONFIG_FOLDER + "/download.fetchmailrc")
+	mbox_file = "/app/emails/download.mbox"
+	os.system("fetchmail -s -f /app/emails/download.fetchmailrc")
 	
 	y = 0
 	try:

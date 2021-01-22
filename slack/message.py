@@ -5,13 +5,13 @@ from rest_framework.decorators import action
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
-from silverstrike.mohair.utils import manual_entry
-from silverstrike.mohair.utils import sendMessage
-from silverstrike.mohair.utils import create_attachment_transaction
-from silverstrike.mohair.utils import create_transaction
-from silverstrike.mohair.utils import remove_unused_accounts
-from silverstrike.mohair.utils import adjust_transaction_amount
-from silverstrike.mohair.utils import add_altname
+from slack.utils import manual_entry
+from slack.utils import sendMessage
+from slack.utils import create_attachment_transaction
+from slack.utils import create_transaction
+from emails.utils import remove_unused_accounts
+from slack.utils import adjust_transaction_amount
+from emails.utils import add_altname
 
 from django.conf import settings
 from silverstrike import models
@@ -99,10 +99,10 @@ def process_slack(json_text):
 			if submissions['opposing_account_select'] or submissions['opposing_account_manual']:
 				if transaction.is_transfer:
 					opposing_account_name = submissions['opposing_account_select'] if submissions['opposing_account_select'] else submissions['opposing_account_manual']
-					opposing_account = models.Account.objects.get_or_create(name=opposing_account_name, account_type=models.Account.PERSONAL)[0]
+					opposing_account = models.Account.objects.get_or_create(name=opposing_account_name, account_type=models.Account.AccountType.PERSONAL)[0]
 				else:
 					opposing_account_name = submissions['opposing_account_select'] if submissions['opposing_account_select'] else submissions['opposing_account_manual']
-					opposing_account = models.Account.objects.get_or_create(name=opposing_account_name, account_type=models.Account.FOREIGN)[0]
+					opposing_account = models.Account.objects.get_or_create(name=opposing_account_name, account_type=models.Account.AccountType.FOREIGN)[0]
 					add_altname(split.opposing_account.name, opposing_account)
 			if submissions['amount']:
 				if submissions['amount'][:1] == '$':
@@ -198,10 +198,10 @@ def silverstrike_primary(json_text):
 	split= models.Split.objects.get(id=callback_id)
 
 	opposing_accounts = []
-	for x in models.Account.objects.raw("SELECT silverstrike_account.* FROM silverstrike_account LEFT JOIN silverstrike_split ON (silverstrike_split.account_id = silverstrike_account.id) GROUP BY id, name, account_type ORDER BY COUNT(*) ASC"):
-		if x.account_type == models.Account.PERSONAL and split.transaction.is_transfer:
+	for x in models.Account.objects.raw("SELECT silverstrike_account.* FROM silverstrike_account LEFT JOIN silverstrike_split ON (silverstrike_split.account_id = silverstrike_account.id) GROUP BY silverstrike_account.id, silverstrike_account.name, silverstrike_account.account_type ORDER BY COUNT(*) ASC"):
+		if x.account_type == models.Account.AccountType.PERSONAL and split.transaction.is_transfer:
 			opposing_accounts.insert(0, {"label":x.name, "value": x.name})
-		elif x.account_type  == models.Account.FOREIGN and not split.transaction.is_transfer:
+		elif x.account_type  == models.Account.AccountType.FOREIGN and not split.transaction.is_transfer:
 			opposing_accounts.insert(0, {"label":x.name, "value": x.name})
 
 	try:
@@ -285,7 +285,7 @@ def silverstrike_secondary(json_text):
 	
 	accounts = []
 	for name, t in models.Account.objects.all().values_list('name', 'account_type'):
-		if t == models.Account.PERSONAL:
+		if t == models.Account.AccountType.PERSONAL:
 			accounts.insert(0, {"label":name, "value": name})
 
 	try:
@@ -334,17 +334,19 @@ def silverstrike_secondary(json_text):
 					"value": "",
 					"optional": "true",
 					"options": [{"label":"Deposit", "value": "1"},{"label":"Withdraw", "value": "2"},{"label":"Transfer", "value": "3"}]
-				},
-				{
+				}
+			]
+			
+	if recurrence:
+		elements.append({
 					"label": "Recurrences",
 					"type": "select",
 					"name": "recurrence",
 					"value": "",
 					"optional": "true",
 					"options": recurrence
-				}
-			]
-
+				})
+			
 	open_dialog = sc.api_call(
 		"dialog.open",
 		trigger_id=json_text['trigger_id'],
