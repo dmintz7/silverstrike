@@ -503,9 +503,3 @@ class Account_Altname(models.Model):
 
     objects = Account_AltnameQuerySet.as_manager()
 
-class Account_FAKE(models.Model):
-    account = models.ForeignKey(Account, models.CASCADE, limit_choices_to={'account_type': '2'})
-    name = models.CharField(max_length=254, blank=True, null=True, unique=True)
-    last_modified = models.DateTimeField(auto_now=True)
-
-    objects = Account_AltnameQuerySet.as_manager()

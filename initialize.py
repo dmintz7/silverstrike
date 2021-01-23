@@ -12,5 +12,4 @@ User = get_user_model()
 users = User.objects.all()
 
 if len(users) == 0:
-	logger.info("No Users Found, Creating Super User with credentials admin/admin.")
 	User.objects.create_superuser('admin', 'admin@example.com', 'admin')
