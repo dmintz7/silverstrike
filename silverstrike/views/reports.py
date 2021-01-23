@@ -19,6 +19,8 @@ class IncomeExpenseReport(generic.TemplateView):
             total=models.Sum('amount'))
         expenses = queryset.expense().annotate(m=TruncMonth('date')).values('m').annotate(
             total=models.Sum('amount'))
+        incomes = sorted([{'m': x['m'], 'total' : x['total']} for x in incomes], key = lambda i: i['m'])
+        expenses = sorted([{'m': x['m'], 'total' : x['total']} for x in expenses], key = lambda i: i['m'])
         result = []
         for i, e in zip(incomes, expenses):
             result.append({
