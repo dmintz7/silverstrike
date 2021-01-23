@@ -13,5 +13,6 @@ sed -i 's/default_label/'$EMAIL_LABEL'/g' '/app/download.fetchmailrc'
 echo "Create admin user if no user exists"
 python3 /app/initialize.py
 
-#Start Server
+# Start Server
+echo "Starting Server"
 uwsgi --ini /app/silverstrike.ini

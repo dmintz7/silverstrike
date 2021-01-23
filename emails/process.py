@@ -50,7 +50,7 @@ def process_email(message, account):
 def check_new():
 	logger.info("Checking for Emails")
 	mbox_file = "/app/emails/download.mbox"
-	os.system("fetchmail -s -f /app/emails/download.fetchmailrc")
+	os.system("fetchmail -s -f /app/download.fetchmailrc")
 	
 	y = 0
 	try:

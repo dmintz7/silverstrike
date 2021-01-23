@@ -9,7 +9,7 @@ RUN pip3 install -r /tmp/requirements.txt
 
 COPY ./ /app
 WORKDIR /app
-RUN chmod 700 /app/emails/download.fetchmailrc
+RUN chmod 700 /app/download.fetchmailrc
 
 EXPOSE 80
 
@@ -18,4 +18,4 @@ RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-CMD [ "uwsgi", "--ini", "/app/silverstrike.ini" 
+CMD [ "uwsgi", "--ini", "/app/silverstrike.ini"]
