@@ -36,8 +36,7 @@ def check_altname(opposing_account):
 	
 def remove_unused_accounts():
 	try:
-		print("Run Query")
-		# connection.cursor().execute("DELETE silverstrike_account FROM silverstrike_account left join (select A.id AS id from (select opposing_account_id as id from silverstrike_split union all select account_id from silverstrike_split) A group by A.id ) B on (B.id = silverstrike_account.id) where isnull(B.id) and account_type = '2';")
+		connection.cursor().execute("DELETE silverstrike_account FROM silverstrike_account left join (select A.id AS id from (select opposing_account_id as id from silverstrike_split union all select account_id from silverstrike_split) A group by A.id ) B on (B.id = silverstrike_account.id) where isnull(B.id) and account_type = '2';")
 	except:
 		pass
 		
