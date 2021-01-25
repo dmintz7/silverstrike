@@ -10,7 +10,7 @@ sed -i 's/default_user/'$EMAIL_USER'/g' '/app/download.fetchmailrc'
 sed -i 's/default_pass/'$EMAIL_PASS'/g' '/app/download.fetchmailrc'
 sed -i 's/default_label/'$EMAIL_LABEL'/g' '/app/download.fetchmailrc'
 
-echo "Create admin user if no user exists"
+# Create admin user if no user exists
 python3 /app/initialize.py
 
 # Start Server
