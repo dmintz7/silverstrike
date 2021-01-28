@@ -1,14 +1,11 @@
-import logging, os, mailbox, schedule, sys, pytz
-import time as time
+import logging, os, mailbox, sys, pytz
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings
 
 from silverstrike import models
 from slack import parser
 from slack import utils
-from emails.utils import remove_unused_accounts
 from emails.utils import match_transaction_recurrence
 
 logger = logging.getLogger(__name__)
@@ -44,7 +41,7 @@ def process_email(message, account):
 		models.Email.objects.create(message_id=message['Message-ID'], subject=message['Subject'], email=message['from'].split("<")[1].split(">")[0], account_id=account.id, transaction_id=split.transaction.id)
 	except Exception as e:
 		logger.error('Error Adding Transaction - %s' % e)
-		logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
+		logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
 	return 1
 	
 def check_new():
@@ -72,7 +69,7 @@ def check_new():
 						y+=process_email(message, account)
 					except Exception as e:
 						logger.error("Error Adding Message - %s" % e)
-						logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
+						logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
 				except ObjectDoesNotExist:
 					logger.info("Unknown Email")
 		

@@ -2,11 +2,13 @@ import json, logging, sys
 from datetime import datetime
 from slackclient import SlackClient
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from silverstrike import models
 from django.conf import settings
+from django.db import connection
 
 from emails.utils import match_transaction_recurrence
-from emails.utils import check_altname
 
 
 logger = logging.getLogger(__name__)
@@ -73,7 +75,7 @@ def create_transaction(date, title, amount, account, opposing_account, category,
 			elif transaction_type == 'Deposit':
 				t_type = models.Transaction.DEPOSIT
 		
-		amount = adjust_transaction_amount(transaction_type, amount)
+		amount = adjust_transaction_amount(transaction_type, amount)		
 	
 		if category:
 			category = models.Category.objects.get_or_create(name=category)[0].id
@@ -83,9 +85,10 @@ def create_transaction(date, title, amount, account, opposing_account, category,
 		try:
 			if not transaction: transaction = models.Transaction.objects.create(title=title, date=date, transaction_type=t_type, notes=notes, dst_id = opposing_account.id, src_id=account.id, amount=amount)
 			main_split = models.Split.objects.create(account_id=account.id, title=title, date=date, opposing_account_id=opposing_account.id, amount=amount, transaction_id=transaction.id, category_id=category)
+			opposing_split = models.Split.objects.create(account_id=opposing_account.id, title=title, date=date, opposing_account_id=account.id, amount=-amount, transaction_id=transaction.id, category_id=category)
 		except Exception as e:
 			logger.error("Error Creating Transaction - %s" % e)
-			logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
+			logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
 	
 		return main_split
 

@@ -1,4 +1,5 @@
 import os
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
