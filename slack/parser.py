@@ -46,7 +46,7 @@ def chase_email(message, account_name):
 	else:
 		logger.info("Doing Nothing")
 		
-	return (account_name, opposing_account, amount, description[:64], description, date, "Withdrawal")
+	return (account_name, opposing_account, amount, description[:64], description, date, transaction_type)
 
 def venmo_email(message, account_name):
 	body = str(message)
