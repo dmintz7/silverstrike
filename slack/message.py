@@ -149,7 +149,7 @@ def process_slack(json_text):
 				models.Split.objects.update_or_create(id=opposing_split.id, defaults={'opposing_account': account, 'title': title})
 			except Exception as e:
 				logger.error("Error Updating Transaction/Split - %s" % e)
-				logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
+				logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
 
 		elif command == "silverstrike_split":
 			result = submissions['split_result']
