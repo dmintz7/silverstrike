@@ -16,10 +16,10 @@ def start_bot():
 				time.sleep(1)
 			except Exception as e:
 				logger.error("ERROR Slack Bot: %s" % e)
-				logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
+				logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
 	except Exception as e:
 		logger.error("Error Slack Queue - %s" % e)
-		logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
+		logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
 
 class Bot(object):
 	def __init__(self):
