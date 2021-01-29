@@ -43,20 +43,18 @@ def remove_unused_accounts():
 		
 
 def match_transaction_recurrence(split):
-	try:
-		if split.transaction.transaction_type == models.Transaction.DEPOSIT:
-			account = split.opposing_account
-			opposing_account = split.account
-		else:
-			account = split.account
-			opposing_account = split.opposing_account
+	if split.transaction.transaction_type == models.Transaction.DEPOSIT:
+		account = split.opposing_account
+		opposing_account = split.account
+	else:
+		account = split.account
+		opposing_account = split.opposing_account
 
-		recurrence = models.RecurringTransaction.objects.get(transaction_type=split.transaction.transaction_type, src=account, dst=opposing_account, amount=abs(split.amount))
+	try:
+		recurrence = models.RecurringTransaction.objects.get(transaction_type=split.transaction.transaction_type, src=account, dst=opposing_account)
 		if abs(split.date-recurrence.date).days < 3:
 			split.transaction.recurrence = recurrence
 			recurrence.update_date(save=True)
 			split.transaction.save()
-	except Exception as e:
-		logger.error("Error Matching Transaction to Recurrence")
-		logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
+	except:
 		pass
