@@ -13,4 +13,4 @@ django-cors-headers>=3.1
 uwsgi
 psycopg2-binary
 mysqlclient
-PyMySQL==1.0.2
+django-emoji
