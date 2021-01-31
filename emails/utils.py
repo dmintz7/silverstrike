@@ -28,14 +28,6 @@ def check_altname(opposing_account):
 		except ObjectDoesNotExist:
 			pass
 	return opposing_account
-	
-def remove_unused_accounts():
-	try:
-		connection.cursor().execute("DELETE IGNORE FROM silverstrike_account where id not IN (select opposing_account_id as id from silverstrike_split union select account_id from silverstrike_split) and account_type = '2'")
-	except:
-		logger.error("Error Removing Unused Accounts")
-		pass
-		
 
 def match_transaction_recurrence(split):
 	if split.transaction.transaction_type == models.Transaction.DEPOSIT:

@@ -9,8 +9,6 @@ from slack.utils import manual_entry
 from slack.utils import sendMessage
 from slack.utils import create_attachment_transaction
 from slack.utils import create_transaction
-from emails.utils import remove_unused_accounts
-from slack.utils import adjust_transaction_amount
 from emails.utils import add_altname
 
 from django.conf import settings
@@ -109,7 +107,6 @@ def process_slack(json_text):
 					amount = float(submissions['amount'][1:].replace(',',''))
 				else:
 					amount = float(submissions['amount'].replace(',',''))
-				amount = adjust_transaction_amount(transaction.get_transaction_type_display(), amount)
 			if submissions['category']:
 				category = models.Category.objects.get(name=submissions['category'])
 			if submissions['buffet']:
@@ -184,7 +181,6 @@ def process_slack(json_text):
 			models.Split.objects.update_or_create(id=callback_id, defaults={'amount': amount})
 			models.Split.objects.update_or_create(id=opposing_split.id, defaults={'amount': -amount})
 
-		remove_unused_accounts()
 		data = create_attachment_transaction(callback_id)
 		sendMessage("", data, True, ts)
 		logger.info("Message Update Sent")

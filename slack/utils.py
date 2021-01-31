@@ -72,9 +72,7 @@ def create_transaction(date, title, amount, account, opposing_account, category,
 				t_type = models.Transaction.WITHDRAW
 			elif transaction_type == 'Deposit':
 				t_type = models.Transaction.DEPOSIT
-		
-		amount = adjust_transaction_amount(transaction_type, amount)
-	
+
 		if category:
 			category = models.Category.objects.get_or_create(name=category)[0].id
 		else:
@@ -100,13 +98,3 @@ def manual_entry(account_type):
 	split = create_transaction(date, title, amount, account, opposing_account, None, "", account_type)
 	data = create_attachment_transaction(split)
 	return data
-
-def adjust_transaction_amount(transaction_type, amount):
-	if transaction_type == 'Withdrawal':
-		amount = -abs(amount)
-	elif transaction_type == 'Transfer':
-		amount = abs(amount)
-	elif transaction_type == 'Deposit':
-		amount = abs(amount)
-
-	return amount
