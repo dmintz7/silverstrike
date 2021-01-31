@@ -4,7 +4,7 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
 from silverstrike import models
-from slack import parser
+from emails import parser
 from slack import utils
 from emails.utils import match_transaction_recurrence
 
@@ -16,7 +16,6 @@ def process_email(message, account):
 	elif account.bank == 'CHASE':
 		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.chase_email(message, account.name)
 	elif account.bank == 'ALLY':
-		print("A")
 		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.ally_email(message, account.name)
 	elif account.bank == 'AMAZON':
 		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.amazon_email(message, account.name)
@@ -29,7 +28,7 @@ def process_email(message, account):
 			date = datetime.strptime(message['Date'], '%a, %d %b %Y %H:%M:%S %z').astimezone(pytz.timezone("US/Eastern")).strftime('%Y%m%d')
 		except:
 			date = datetime.now(pytz.timezone("US/Eastern")).strftime('%Y%m%d')
-					
+
 	amount = str(amount).replace('$','').replace(',','')
 	
 	logger.info("Email found from %s" % (message['from']))
