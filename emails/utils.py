@@ -1,11 +1,6 @@
-import json, sys, logging
-from datetime import datetime
-from slackclient import SlackClient
-
+import logging
 from django.core.exceptions import ObjectDoesNotExist
-
 from silverstrike import models
-from django.conf import settings
 from django.db import connection
 
 logger = logging.getLogger(__name__)
