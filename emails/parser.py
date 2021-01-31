@@ -37,9 +37,14 @@ def chase_email(message, account_name):
 			amount = '.01'
 			
 		try:
-			start = description.find(' authorized on ') + 15
-			end = description.find(' at ', start)
-			date = datetime.strptime(description[start:end], "%b %d, %Y").strftime("%Y%m%d")
+			try:
+				start = description.find(' authorized on ') + 15
+				end = description.find(' at ', start)
+				date = datetime.strptime(description[start:end], "%b %d, %Y").strftime("%Y%m%d")
+			except:
+				start = description.find(' on ', description.find(' authorized at ')) + 4
+				end = description.find(' at ', start)
+				date = datetime.strptime(description[start:end], "%b %d, %Y").strftime("%Y%m%d")
 		except:
 			logger.info("Date Error. Using Today's Date")
 			date = datetime.today()
