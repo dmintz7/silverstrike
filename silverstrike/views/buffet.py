@@ -90,10 +90,10 @@ class BuffetDetailView(LoginRequiredMixin, generic.DetailView):
 		two_months_ago = self.current_month - relativedelta(months=2)
 		last_month = self.current_month - relativedelta(months=1)
 		splits = Split.objects.filter(buffet=buffet,
-			account__account_type=Account.PERSONAL,
+			account__account_type=Account.AccountType.PERSONAL,
 			date__gte=self.current_month, date__lt=next_month)
 		last_two_months_splits = Split.objects.filter(buffet=buffet,
-			account__account_type=Account.PERSONAL,
+			account__account_type=Account.AccountType.PERSONAL,
 			date__gte=two_months_ago, date__lt=self.current_month)
 		sum_last_month = 0
 		sum_two_months_ago = 0
