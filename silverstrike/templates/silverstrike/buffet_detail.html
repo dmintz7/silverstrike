@@ -48,7 +48,8 @@
       <tr>
         <td><a href="{{ split.get_absolute_url }}">{{ split.title }}</a></td>
         <td>{{ split.date }}</td>
-        <td>{{ split.amount }}</td>
+        <td>{{ split.amount|currency }}</td>
+        <td{% if split.amount > 0 %} class="text-green"{% elif split.amount < 0 %} class="text-red" {% endif %}>{{ split.amount|currency }}</td>
       </tr>
       {% endfor %}
     </table>
