@@ -114,7 +114,7 @@ class BuffetDetailView(LoginRequiredMixin, generic.DetailView):
 			spent_this_month += s.amount
 			account_spending[s.account] += s.amount
 			destination_spending[s.opposing_account] += s.amount
-			category_spending[s.category] += abs(s.amount)
+			category_spending[s.category] += -s.amount
 
 		context['sum_this_month'] = spent_this_month
 		context['splits'] = splits
