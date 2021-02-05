@@ -51,7 +51,7 @@ def chase_email(message, account_name):
 	else:
 		logger.info("Doing Nothing")
 		
-	return (account_name, opposing_account, amount, description[:64], description, date, "Withdrawal")
+	return (account_name, opposing_account, -amount, description[:64], description, date, "Withdrawal")
 
 def venmo_email(message, account_name):
 	body = str(message)
@@ -169,7 +169,7 @@ def amazon_email(message, account_name):
 					amount = amount + new_amount
 			start = end
 
-	return (account_name, opposing_account, amount, subject, notes, None, transaction_type)
+	return (account_name, opposing_account, -amount, subject, notes, None, transaction_type)
 
 def venmo_comments(body, note, search):
 	start = body.find(note) + len(note) + 2
