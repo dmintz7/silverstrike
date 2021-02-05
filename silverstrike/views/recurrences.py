@@ -103,15 +103,14 @@ class RecurringTransactionIndex(LoginRequiredMixin, generic.ListView):
                     t.interval == RecurringTransaction.ANNUALLY and
                     t.date.month == today.month and t.date.year == today.year) or t.interval == RecurringTransaction.WEEKLY or t.interval == RecurringTransaction.DAILY:
                     
+                difference = abs((last_day_of_month(date.today()) - t.date).days)
                 if t.interval == RecurringTransaction.WEEKLY:
-                    num_days = 7
+                    amount = t.amount * (1 + math.floor((difference/7)/t.multiplier))
                 elif t.interval == RecurringTransaction.DAILY:
-                    num_days = 1
+                    amount = t.amount * (1 + math.floor(difference/t.multiplier))
                 else:
-                    num_days = abs((last_day_of_month(date.today()) - t.date).days)
+                    amount = t.amount
 
-                difference = abs((last_day_of_month(date.today()) - t.date).days)/num_days
-                amount = t.amount * (1 + math.floor(difference/t.multiplier))
                 if t.transaction_type == Transaction.WITHDRAW:
                     expenses += amount
                     if t.date <= last:
