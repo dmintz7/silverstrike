@@ -1,3 +1,5 @@
+import math
+
 from datetime import date
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -90,6 +92,7 @@ class RecurringTransactionIndex(LoginRequiredMixin, generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['menu'] = 'recurrences'
+        amount = 0
         income = 0
         expenses = 0
         today = date.today()
@@ -99,14 +102,21 @@ class RecurringTransactionIndex(LoginRequiredMixin, generic.ListView):
             if t.interval == RecurringTransaction.MONTHLY or (
                     t.interval == RecurringTransaction.ANNUALLY and
                     t.date.month == today.month and t.date.year == today.year):
+                    
+                if RecurringTransaction.WEEKLY:
+                    difference = abs((last - t.date).days)/7
+                    amount = t.amount * (1 + math.floor(difference/t.multiplier))
+                else:
+                    amount = t.amount
+
                 if t.transaction_type == Transaction.WITHDRAW:
-                    expenses += t.amount
+                    expenses += amount
                     if t.date <= last:
-                        remaining -= t.amount
+                        remaining -= amount
                 elif t.transaction_type == Transaction.DEPOSIT:
-                    income += t.amount
+                    income += amount
                     if t.date <= last:
-                        remaining += t.amount
+                        remaining += amount
         context['expenses'] = expenses
         context['income'] = income
         context['total'] = income - expenses
