@@ -47,10 +47,13 @@ class IndexView(LoginRequiredMixin, generic.TemplateView):
         amount = 0
         for r in recurrences:
             if r.interval == RecurringTransaction.WEEKLY:
-                difference = abs((last_day_of_month(date.today()) - r.date).days)/7
-                amount = r.amount * (1 + math.floor(difference/r.multiplier))
+                num_days = 7
+            elif r.interval == RecurringTransaction.DAILY:
+                num_days = 1
             else:
-                amount = r.amount
+                num_days = abs((last_day_of_month(date.today()) - r.date).days)
+            difference = abs((last_day_of_month(date.today()) - r.date).days)/num_days
+            amount = r.amount * (1 + math.floor(difference/r.multiplier))
 
             if r.transaction_type == Transaction.WITHDRAW:
                 outstanding -= amount
