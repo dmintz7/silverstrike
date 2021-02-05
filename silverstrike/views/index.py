@@ -1,3 +1,5 @@
+import math
+
 from datetime import date, timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -42,11 +44,18 @@ class IndexView(LoginRequiredMixin, generic.TemplateView):
                 outstanding += t.amount
         context['working_balance'] = context['balance'] + outstanding
         outstanding = 0
+        amount = 0
         for r in recurrences:
+            if r.interval == RecurringTransaction.WEEKLY:
+                difference = abs((last_day_of_month(date.today()) - r.date).days)/7
+                amount = r.amount * (1 + math.floor(difference/r.multiplier))
+            else:
+                amount = r.amount
+
             if r.transaction_type == Transaction.WITHDRAW:
-                outstanding -= r.amount
+                outstanding -= amount
             elif r.transaction_type == Transaction.DEPOSIT:
-                outstanding += r.amount
+                outstanding += amount
             if r.is_due:
                 context['overdue_transactions'] = True
 

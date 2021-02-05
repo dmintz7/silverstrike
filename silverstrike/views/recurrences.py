@@ -101,9 +101,9 @@ class RecurringTransactionIndex(LoginRequiredMixin, generic.ListView):
         for t in context['transactions']:
             if t.interval == RecurringTransaction.MONTHLY or (
                     t.interval == RecurringTransaction.ANNUALLY and
-                    t.date.month == today.month and t.date.year == today.year):
+                    t.date.month == today.month and t.date.year == today.year) or t.interval == RecurringTransaction.WEEKLY:
                     
-                if RecurringTransaction.WEEKLY:
+                if t.interval == RecurringTransaction.WEEKLY:
                     difference = abs((last - t.date).days)/7
                     amount = t.amount * (1 + math.floor(difference/t.multiplier))
                 else:
