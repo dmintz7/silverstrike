@@ -31,7 +31,7 @@ def create_attachment_transaction(split):
 		  'text': split.transaction.notes if not split.transaction.title in  split.transaction.notes else "", 
 		  'color': '#348CB7',
 		  'thumb_url':'',
-		  'fields': [{'title':'Date' ,'value': split.date.strftime("%Y-%m-%d"),'short':'True'}, {'title': 'Amount','value': '${:,.2f}'.format(split.amount),'short':'True'}, {'title':'Account' ,'value': split.account.name,'short':'True'}, {'title': 'Opposing Account','value': split.opposing_account.name,'short':'True'}, {'title': 'Transaction Type', 'value': split.transaction.get_transaction_type_str(), 'short':'True'}, {'title': 'Recurrence', 'value': split.transaction.recurrence.title if split.transaction.recurrence else None, 'short':'True'}, {'title':'Category', 'value': split.category.name if split.category else None, 'short':'False'}, {'title':'Buffet', 'value': models.get_buffet_type_str(split.buffet) if split.buffet else None, 'short':'False'}],
+		  'fields': [{'title':'Date' ,'value': split.date.strftime("%Y-%m-%d"),'short':'True'}, {'title': 'Amount','value': '${:,.2f}'.format(abs(split.amount)),'short':'True'}, {'title':'Account' ,'value': split.account.name,'short':'True'}, {'title': 'Opposing Account','value': split.opposing_account.name,'short':'True'}, {'title': 'Transaction Type', 'value': split.transaction.get_transaction_type_str(), 'short':'True'}, {'title': 'Recurrence', 'value': split.transaction.recurrence.title if split.transaction.recurrence else None, 'short':'True'}, {'title':'Category', 'value': split.category.name if split.category else None, 'short':'False'}, {'title':'Buffet', 'value': models.get_buffet_type_str(split.buffet) if split.buffet else None, 'short':'False'}],
 		  'callback_id': split.id,
 		  'actions': actions
 		}]
@@ -66,12 +66,15 @@ def create_transaction(date, title, amount, account, opposing_account, category,
 			transaction_type = 'Transfer'
 			t_type = models.Transaction.TRANSFER
 			if isinstance(opposing_account, str): opposing_account = models.Account.objects.get(name=opposing_account, account_type=models.Account.AccountType.PERSONAL)[0]
+			amount = abs(amount)
 		else:
 			if isinstance(opposing_account, str): opposing_account = models.Account.objects.get_or_create(name=opposing_account, account_type=models.Account.AccountType.FOREIGN)[0]
 			if transaction_type == 'Withdrawal':
 				t_type = models.Transaction.WITHDRAW
+				amount = -abs(amount)
 			elif transaction_type == 'Deposit':
 				t_type = models.Transaction.DEPOSIT
+				amount = abs(amount)
 
 		if category:
 			category = models.Category.objects.get_or_create(name=category)[0].id
