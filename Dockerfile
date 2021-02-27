@@ -3,6 +3,7 @@ FROM debian:10
 LABEL maintainer="dmintz"
 RUN apt-get update
 RUN apt-get install -y python3 python3-dev python3-pip fetchmail postgresql uwsgi uwsgi-plugin-python3 libmariadb-dev
+RUN pip3 install --upgrade pip
 
 COPY ./requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt
