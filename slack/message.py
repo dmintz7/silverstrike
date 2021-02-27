@@ -91,6 +91,7 @@ def process_slack(json_text):
 
 			opposing_account = split.opposing_account
 			amount = split.amount
+			direction = copysign(-1,amount)
 			category = split.category
 			buffet = split.buffet
 
@@ -107,6 +108,7 @@ def process_slack(json_text):
 					amount = float(submissions['amount'][1:].replace(',',''))
 				else:
 					amount = float(submissions['amount'].replace(',',''))
+				amount = direction * amount
 			if submissions['category']:
 				category = models.Category.objects.get(name=submissions['category'])
 			if submissions['buffet']:
