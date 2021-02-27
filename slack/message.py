@@ -1,4 +1,4 @@
-import logging, json, urllib.parse, sys
+import logging, json, urllib.parse, sys, math
 from html2text import html2text
 
 from rest_framework.decorators import action
@@ -91,7 +91,7 @@ def process_slack(json_text):
 
 			opposing_account = split.opposing_account
 			amount = split.amount
-			direction = copysign(-1,amount)
+			direction = math.copysign(-1,amount)
 			category = split.category
 			buffet = split.buffet
 
