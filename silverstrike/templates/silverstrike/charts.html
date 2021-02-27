@@ -233,7 +233,7 @@ $.getJSON("{% url 'category_spending' minus_3_months today %}", {}, function(res
 });
 
 // update charts
-$('#1200month').click(function() {
+$('#max').click(function() {
   if (accountChartData[max_years] == null) {
     $.getJSON("{% url 'api_accounts_balance' max today %}", {}, function(res, status) {
       updateAccountChart(res);
@@ -250,10 +250,10 @@ $('#1200month').click(function() {
   } else {
     updateBalanceChart(balanceChartData[max_years]);
   }
-  if (categoryChartData[twelve_months] == null) {
+  if (categoryChartData[max_years] == null) {
     $.getJSON("{% url 'category_spending' max today %}", {}, function(res, status) {
       updateCategoryChart(res);
-      categoryChartData[twelve_months] = res;
+      categoryChartData[max_years] = res;
     });
   } else {
     updateCategoryChart(categoryChartData[max_years]);
