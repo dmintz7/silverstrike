@@ -15,10 +15,15 @@
 <div class="box">
   <div class="box-header">
   <div class="row text-center">
-    <button id="12month" class="btn btn-s btn-default range-chooser">{% trans 'Last year' %}</button>
-    <button id="6month" class="btn btn-s btn-default range-chooser">{% trans 'Last 6 Months' %}</button>
-    <button id="3month" class="btn btn-s btn-default range-chooser">{% trans 'Last 3 Months' %}</button>
     <button id="currentMonth" class="btn btn-s btn-default range-chooser">{% trans 'Current Month' %}</button>
+    <button id="3month" class="btn btn-s btn-default range-chooser">{% trans 'Last 3 Months' %}</button>
+    <button id="6month" class="btn btn-s btn-default range-chooser">{% trans 'Last 6 Months' %}</button>
+    <button id="12month" class="btn btn-s btn-default range-chooser">{% trans 'Last year' %}</button>
+    <button id="24month" class="btn btn-s btn-default range-chooser">{% trans 'Last 2 years' %}</button>
+    <button id="36month" class="btn btn-s btn-default range-chooser">{% trans 'Last 3 years' %}</button>
+    <button id="48month" class="btn btn-s btn-default range-chooser">{% trans 'Last 4 years' %}</button>
+    <button id="60month" class="btn btn-s btn-default range-chooser">{% trans 'Last 5 years' %}</button>
+    <button id="max" class="btn btn-s btn-default range-chooser">{% trans 'All' %}</button>
     <!--button id="custom" class="btn btn-s btn-default range-chooser">Custom Range</button-->
   </div>
 </div>
@@ -202,6 +207,11 @@ var one_month = 0;
 var three_months = 1;
 var six_months = 2;
 var twelve_months = 3;
+var two_years = 4;
+var three_years = 5;
+var four_years = 6;
+var five_years = 7;
+var max_years = 8;
 var accountChartData = new Array(4);
 var balanceChartData = new Array(4);
 var categoryChartData = new Array(4);
@@ -223,6 +233,142 @@ $.getJSON("{% url 'category_spending' minus_3_months today %}", {}, function(res
 });
 
 // update charts
+$('#1200month').click(function() {
+  if (accountChartData[max_years] == null) {
+    $.getJSON("{% url 'api_accounts_balance' max today %}", {}, function(res, status) {
+      updateAccountChart(res);
+      accountChartData[max_years] = res;
+    });
+  } else {
+      updateAccountChart(accountChartData[max_years]);
+  }
+  if (balanceChartData[max_years] == null) {
+    $.getJSON("{% url 'api_balance' max today %}", {}, function(res, status) {
+      updateBalanceChart(res);
+      balanceChartData[max_years] = res;
+    });
+  } else {
+    updateBalanceChart(balanceChartData[max_years]);
+  }
+  if (categoryChartData[twelve_months] == null) {
+    $.getJSON("{% url 'category_spending' max today %}", {}, function(res, status) {
+      updateCategoryChart(res);
+      categoryChartData[twelve_months] = res;
+    });
+  } else {
+    updateCategoryChart(categoryChartData[max_years]);
+  }
+});
+
+$('#60month').click(function() {
+  if (accountChartData[five_years] == null) {
+    $.getJSON("{% url 'api_accounts_balance' minus_60_months today %}", {}, function(res, status) {
+      updateAccountChart(res);
+      accountChartData[five_years] = res;
+    });
+  } else {
+      updateAccountChart(accountChartData[five_years]);
+  }
+  if (balanceChartData[five_years] == null) {
+    $.getJSON("{% url 'api_balance' minus_60_months today %}", {}, function(res, status) {
+      updateBalanceChart(res);
+      balanceChartData[five_years] = res;
+    });
+  } else {
+    updateBalanceChart(balanceChartData[five_years]);
+  }
+  if (categoryChartData[five_years] == null) {
+    $.getJSON("{% url 'category_spending' minus_60_months today %}", {}, function(res, status) {
+      updateCategoryChart(res);
+      categoryChartData[five_years] = res;
+    });
+  } else {
+    updateCategoryChart(categoryChartData[five_years]);
+  }
+});
+
+$('#48month').click(function() {
+  if (accountChartData[four_years] == null) {
+    $.getJSON("{% url 'api_accounts_balance' minus_48_months today %}", {}, function(res, status) {
+      updateAccountChart(res);
+      accountChartData[four_years] = res;
+    });
+  } else {
+      updateAccountChart(accountChartData[four_years]);
+  }
+  if (balanceChartData[four_years] == null) {
+    $.getJSON("{% url 'api_balance' minus_48_months today %}", {}, function(res, status) {
+      updateBalanceChart(res);
+      balanceChartData[four_years] = res;
+    });
+  } else {
+    updateBalanceChart(balanceChartData[four_years]);
+  }
+  if (categoryChartData[four_years] == null) {
+    $.getJSON("{% url 'category_spending' minus_48_months today %}", {}, function(res, status) {
+      updateCategoryChart(res);
+      categoryChartData[four_years] = res;
+    });
+  } else {
+    updateCategoryChart(categoryChartData[four_years]);
+  }
+});
+
+$('#36month').click(function() {
+  if (accountChartData[three_years] == null) {
+    $.getJSON("{% url 'api_accounts_balance' minus_36_months today %}", {}, function(res, status) {
+      updateAccountChart(res);
+      accountChartData[three_years] = res;
+    });
+  } else {
+      updateAccountChart(accountChartData[three_years]);
+  }
+  if (balanceChartData[three_years] == null) {
+    $.getJSON("{% url 'api_balance' minus_36_months today %}", {}, function(res, status) {
+      updateBalanceChart(res);
+      balanceChartData[three_years] = res;
+    });
+  } else {
+    updateBalanceChart(balanceChartData[three_years]);
+  }
+  if (categoryChartData[three_years] == null) {
+    $.getJSON("{% url 'category_spending' minus_36_months today %}", {}, function(res, status) {
+      updateCategoryChart(res);
+      categoryChartData[three_years] = res;
+    });
+  } else {
+    updateCategoryChart(categoryChartData[three_years]);
+  }
+});
+
+$('#24month').click(function() {
+  if (accountChartData[two_years] == null) {
+    $.getJSON("{% url 'api_accounts_balance' minus_24_months today %}", {}, function(res, status) {
+      updateAccountChart(res);
+      accountChartData[two_years] = res;
+    });
+  } else {
+      updateAccountChart(accountChartData[two_years]);
+  }
+  if (balanceChartData[two_years] == null) {
+    $.getJSON("{% url 'api_balance' minus_24_months today %}", {}, function(res, status) {
+      updateBalanceChart(res);
+      balanceChartData[two_years] = res;
+    });
+  } else {
+    updateBalanceChart(balanceChartData[two_years]);
+  }
+  if (categoryChartData[two_years] == null) {
+    $.getJSON("{% url 'category_spending' minus_24_months today %}", {}, function(res, status) {
+      updateCategoryChart(res);
+      categoryChartData[two_years] = res;
+    });
+  } else {
+    updateCategoryChart(categoryChartData[two_years]);
+  }
+});
+
+
 $('#12month').click(function() {
   if (accountChartData[twelve_months] == null) {
     $.getJSON("{% url 'api_accounts_balance' minus_12_months today %}", {}, function(res, status) {
