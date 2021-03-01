@@ -1,5 +1,7 @@
 import logging, os, mailbox, sys, pytz
 from datetime import datetime
+from django.conf import settings
+
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -11,37 +13,30 @@ from emails.utils import match_transaction_recurrence
 logger = logging.getLogger(__name__)
 
 def process_email(message, account):
-	if account.bank == 'VENMO':
-		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.venmo_email(message, account.name)
-	elif account.bank == 'CHASE':
-		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.chase_email(message, account.name)
-	elif account.bank == 'ALLY':
-		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.ally_email(message, account.name)
-	elif account.bank == 'AMAZON':
-		(account_name, opposing_account, amount, title, notes, date, transaction_type) = parser.amazon_email(message, account.name)
+	if account.bank:
+		logger.info("Email found from %s" % (message['from']))
+		(opposing_account, amount, title, notes, date, transaction_type) = eval('parser.' + account.bank.lower() + '_email')(message)
+		if not date:
+			try:
+				date = datetime.strptime(message['Date'], '%a, %d %b %Y %H:%M:%S %z').astimezone(pytz.timezone(settings.TIME_ZONE)).strftime('%Y%m%d')
+			except:
+				date = datetime.now(pytz.timezone(settings.TIME_ZONE)).strftime('%Y%m%d')
+		amount = str(amount).replace('$','').replace(',','')
+		
+		try:
+			split = utils.create_transaction(date, title[:64], amount, account.name, opposing_account, None, notes, transaction_type)
+			match_transaction_recurrence(split)
+			data = utils.create_attachment_transaction(split)
+			utils.sendMessage('', data)
+			models.Email.objects.create(message_id=message['Message-ID'], subject=message['Subject'], email=message['from'].split("<")[1].split(">")[0], account_id=account.id, transaction_id=split.transaction.id)
+		except Exception as e:
+			logger.error('Error Adding Transaction - %s' % e)
+			logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
+		return 1
+		
 	else:
 		logger.info("doing nothing")
 		return 0
-
-	if not date:
-		try:
-			date = datetime.strptime(message['Date'], '%a, %d %b %Y %H:%M:%S %z').astimezone(pytz.timezone("US/Eastern")).strftime('%Y%m%d')
-		except:
-			date = datetime.now(pytz.timezone("US/Eastern")).strftime('%Y%m%d')
-
-	amount = str(amount).replace('$','').replace(',','')
-	
-	logger.info("Email found from %s" % (message['from']))
-	try:
-		split = utils.create_transaction(date, title, amount, account_name, opposing_account, None, notes, transaction_type)
-		match_transaction_recurrence(split)
-		data = utils.create_attachment_transaction(split)
-		utils.sendMessage('', data)
-		models.Email.objects.create(message_id=message['Message-ID'], subject=message['Subject'], email=message['from'].split("<")[1].split(">")[0], account_id=account.id, transaction_id=split.transaction.id)
-	except Exception as e:
-		logger.error('Error Adding Transaction - %s' % e)
-		logger.error('Error on line {} {} {}'.format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e))
-	return 1
 	
 def check_new():
 	logger.info("Checking for Emails")

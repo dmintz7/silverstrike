@@ -1,3 +1,11 @@
+# FUNCTIONS MUST BE ALL LOWER CASE IN THE FORMAT BANK_email(message) (BANK UNDERSCORE)
+# BANK MUST EQUAL NAME FROM MODEL
+# MUST RETURN (opposing_account, amount, title, notes, date, transaction_type)
+# ALL VALUES SHOULD BE STRINGS
+# DATE SHOULD BE RETURNED AS STRING YYYYMMDD
+# TITLE WILL BE PARSED AT 64 CHARACTERS
+# TRANSACTION_TYPE - OPTIONS "Withdrawal" "Deposit" "Transfer"
+
 import logging, re, emoji
 from html2text import html2text
 from datetime import datetime
@@ -6,12 +14,10 @@ from silverstrike import models
 
 logger = logging.getLogger(__name__)
 
-def chase_email(message, account_name):
+def chase_email(message):
 	subject = message['Subject']
 	body = html2text(getBody(message))
-	
 	possible_subjects = ['Your Single Transaction Alert from Chase', 'Your Gas Station Charge Alert from Chase']
-
 	if subject in possible_subjects:
 		if subject == possible_subjects[0]:
 			start = body.find('Alert settings.') + 16
@@ -33,7 +39,7 @@ def chase_email(message, account_name):
 			start = description.find(' at ') + 4
 			end = description.find(' on ', start)
 			opposing_account = description[start:end].title()
-			
+
 			amount = '.01'
 			
 		try:
@@ -51,9 +57,9 @@ def chase_email(message, account_name):
 	else:
 		logger.info("Doing Nothing")
 		
-	return (account_name, opposing_account, amount, description[:64], description, date, "Withdrawal")
+	return (opposing_account, amount, description, description, date, "Withdrawal")
 
-def venmo_email(message, account_name):
+def venmo_email(message):
 	body = str(message)
 
 	action = venmo_comments(body, '<!-- action -->', 'span')
@@ -84,9 +90,9 @@ def venmo_email(message, account_name):
 	re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
 	description = re_pattern.sub(u'\uFFFD', description)
 
-	return (account_name, opposing_account, amount, description[:64], description, date, transaction_type)
+	return (opposing_account, amount, description, description, date, transaction_type)
 
-def ally_email(message, account_name):
+def ally_email(message):
 	subject = message['Subject']
 	body = getBody(message)
 	body = html2text(body)
@@ -106,9 +112,9 @@ def ally_email(message, account_name):
 	end = body.find('.', start)+1
 	description = body[start:end].replace('\n',' ').replace('This amount', amount)
 	
-	return (account_name, opposing_account, amount, description[:64], description, None, transaction_type)
+	return (opposing_account, amount, description, description, None, transaction_type)
 
-def amazon_email(message, account_name):
+def amazon_email(message):
 	subject = message['Subject'][:64]
 	body = getBody(message)
 	body = html2text(body)
@@ -169,7 +175,7 @@ def amazon_email(message, account_name):
 					amount = amount + new_amount
 			start = end
 
-	return (account_name, opposing_account, amount, subject, notes, None, transaction_type)
+	return (opposing_account, amount, subject, notes, None, transaction_type)
 
 def venmo_comments(body, note, search):
 	start = body.find(note) + len(note) + 2
