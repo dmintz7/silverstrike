@@ -4,7 +4,7 @@ schedule==0.6.0
 APScheduler==3.7.0
 pytz==2020.5
 html2text==2020.1.16
-emoji==0.6.0
+emoji
 djangorestframework==3.12.2
 django-widgets-improved
 django-allauth>=0.40
@@ -13,4 +13,3 @@ django-cors-headers>=3.1
 uwsgi
 psycopg2-binary
 mysqlclient
-django-emoji
