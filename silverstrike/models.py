@@ -386,7 +386,7 @@ class RecurringTransaction(models.Model):
 
     @property
     def is_due(self):
-        return date.today() >= self.date
+        return date.today() > self.date
 
     def update_date(self, date=None, save=False):
         """
