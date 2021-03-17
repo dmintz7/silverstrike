@@ -58,15 +58,13 @@ class Command(object):
 			"help" : self.help
 		}
 
-	def handle_command(self, user, text, date_sent):
-		response = ""
+	def handle_command(self, text, date_sent):
 		try:
 			self.date_sent = date_sent
 			logger.info(date_sent)
 			command = text.lower()
 			if command in self.commands:
 				response = self.commands[command]()
-				logger.info(response)
 			else:
 				response = "Sorry I don't understand the command: " + text + ". " + self.help()
 		except Exception as e:
@@ -133,7 +131,7 @@ class Event:
 			try:
 				date_sent_format = datetime.fromtimestamp(float(self.event['event_ts']))
 				logger.info("Received command: " + command + " in channel: " + self.event['channel'] + " from user: " + user + " at " + date_sent_format.strftime("%Y-%m-%d %I:%M:%S %p"))
-				response = self.command.handle_command(user, command, date_sent_format)
+				response = self.command.handle_command(command, date_sent_format)
 				if response != "":
 					sendMessage("", response)
 			except:

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def chase_email(message):
 	subject = message['Subject']
-	body = html2text(getBody(message))
+	body = html2text(getbody(message))
 	possible_subjects = ['Your Single Transaction Alert from Chase', 'Your Gas Station Charge Alert from Chase']
 	if subject in possible_subjects:
 		if subject == possible_subjects[0]:
@@ -57,7 +57,7 @@ def chase_email(message):
 	else:
 		logger.info("Doing Nothing")
 		
-	return (opposing_account, amount, description, description, date, "Withdrawal")
+	return opposing_account, amount, description, description, date, "Withdrawal"
 
 def venmo_email(message):
 	body = str(message)
@@ -90,11 +90,11 @@ def venmo_email(message):
 	re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
 	description = re_pattern.sub(u'\uFFFD', description)
 
-	return (opposing_account, amount, description, description, date, transaction_type)
+	return opposing_account, amount, description, description, date, transaction_type
 
 def ally_email(message):
 	subject = message['Subject']
-	body = getBody(message)
+	body = getbody(message)
 	body = html2text(body)
 
 	opposing_account = models.Account.objects.get_or_create(account_type=models.Account.AccountType.SYSTEM, defaults={'name': 'System Account'})[0]
@@ -112,11 +112,11 @@ def ally_email(message):
 	end = body.find('.', start)+1
 	description = body[start:end].replace('\n',' ').replace('This amount', amount)
 	
-	return (opposing_account, amount, description, description, None, transaction_type)
+	return opposing_account, amount, description, description, None, transaction_type
 
 def amazon_email(message):
 	subject = message['Subject'][:64]
-	body = getBody(message)
+	body = getbody(message)
 	body = html2text(body)
 	opposing_account = "Amazon"
 
@@ -175,7 +175,7 @@ def amazon_email(message):
 					amount = amount + new_amount
 			start = end
 
-	return (opposing_account, amount, subject, notes, None, transaction_type)
+	return opposing_account, amount, subject, notes, None, transaction_type
 
 def venmo_comments(body, note, search):
 	start = body.find(note) + len(note) + 2
@@ -199,7 +199,7 @@ def getcharsets(msg):
 			charsets.update([c])
 	return charsets
 
-def getBody(msg):
+def getbody(msg):
 	while msg.is_multipart():
 		msg=msg.get_payload()[0]
 	t=msg.get_payload(decode=True)
